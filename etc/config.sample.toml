@@ -1,0 +1,21 @@
+[db]
+    app_name = "skeleton"
+    conn_max_lifetime = "1800s"
+    connect_timeout = 5
+    database = "test"
+    debug_queries = false
+    host = "127.0.0.1:5432"
+    max_idle_conns = 10
+    max_open_conns = 100
+    password = "pass"
+    read_only = false
+    report_query_errors = true
+    sslmode = "disable"
+    username = "postgres"
+
+[goose]
+    dir = "./cmd/goose/migrations"
+    driver = "postgres"
+
+[sentry]
+    dsn = "" # "https://123@abc.ingest.sentry.io/123"
