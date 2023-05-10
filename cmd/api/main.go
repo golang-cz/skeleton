@@ -11,9 +11,11 @@ import (
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/internal/core"
 	"github.com/golang-cz/skeleton/pkg/graceful"
+	"github.com/golang-cz/skeleton/pkg/slogger"
 	"github.com/golang-cz/skeleton/pkg/version"
 	"github.com/golang-cz/skeleton/services/api"
 	apiHttp "github.com/golang-cz/skeleton/services/api/http"
+	"golang.org/x/exp/slog"
 )
 
 var (
@@ -47,14 +49,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(app.Config.Sentry)
-
 	defer app.Close()
 
-	// fmt.Info().Msgf("running application in %s environment version %s", api.App.Config.Environment.String(), version.VERSION)
+	slog.SetDefault(slogger.Slogger())
+	slog.Info(fmt.Sprintf("running application in %s environment version %s", api.App.Config.Environment.String(), version.VERSION))
 
 	srv := &http.Server{
-		Addr:              ":8080",
+		Addr:              api.App.Config.Port,
 		Handler:           apiHttp.Router(),
 		IdleTimeout:       60 * time.Second, // idle connections
 		ReadHeaderTimeout: 10 * time.Second, // request header
@@ -65,7 +66,8 @@ func main() {
 
 	wait, _ := graceful.ShutdownHTTPServer(srv, time.Minute)
 
-	// zlog.Info().Msgf("API serving at %v", api.App.Config.Port)
+	slog.Info(fmt.Sprintf("API serving at %v", api.App.Config.Port))
+
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatal(err)
 	}

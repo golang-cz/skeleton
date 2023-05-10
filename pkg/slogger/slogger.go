@@ -1,6 +1,7 @@
 package slogger
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -12,70 +13,103 @@ import (
 	"golang.org/x/exp/slog"
 )
 
+var opts = slog.HandlerOptions{
+	AddSource: true,
+	ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+		// Converting time of log to UTC format
+		if a.Key == slog.TimeKey {
+			inputLayout := "2006-01-02 15:04:05.999999999 -0700 MST"
+			outputLayout := "2006-01-02T15:04:05Z0700"
+
+			inputTime, err := time.Parse(inputLayout, a.Value.String())
+			if err != nil {
+				panic(err)
+			}
+
+			outputTime := inputTime.UTC()
+			a.Value = slog.StringValue(outputTime.Format(outputLayout))
+
+			return a
+		}
+
+		// Converting log level to lowercase
+		if a.Key == slog.LevelKey {
+			a.Value = slog.StringValue(strings.ToLower(a.Value.String()))
+			return a
+		}
+
+		// changing key from "source" to "caller"
+		if a.Key == slog.SourceKey {
+			a.Key = "caller"
+			return a
+		}
+
+		return a
+	},
+}
+
 type JSONHandler struct {
 	slog.Handler
 }
 
 func Slogger() *slog.Logger {
-	opts := slog.HandlerOptions{
-		AddSource: true,
-		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
-			// Converting time of log to UTC format
-			if a.Key == slog.TimeKey {
-				inputLayout := "2006-01-02 15:04:05.999999999 -0700 MST"
-				outputLayout := "2006-01-02T15:04:05Z0700"
-
-				inputTime, err := time.Parse(inputLayout, a.Value.String())
-				if err != nil {
-					panic(err)
-				}
-
-				outputTime := inputTime.UTC()
-				a.Value = slog.StringValue(outputTime.Format(outputLayout))
-
-				return a
-			}
-
-			// Converting log level to lowercase
-			if a.Key == slog.LevelKey {
-				a.Value = slog.StringValue(strings.ToLower(a.Value.String()))
-				return a
-			}
-
-			// changing key from "source" to "caller"
-			if a.Key == slog.SourceKey {
-				a.Key = "caller"
-				return a
-			}
-
-			return a
-		},
-	}
-
 	handler := &JSONHandler{
 		Handler: opts.NewJSONHandler(os.Stdout),
 	}
 
 	slogger := slog.New(handler)
 
-	return slogger
+	slog.SetDefault(slogger)
 
+	return slogger
 }
+
+// extractor of context values
+func firstValueFromCtx(ctx context.Context) (string, bool) {
+	value, exists := ctx.Value(firstCtxField).(string)
+	return value, exists
+}
+
+// extractor of context values
+func middleVlaueFromCtx(ctx context.Context) (string, bool) {
+	value, exists := ctx.Value(middleCtxField).(string)
+	return value, exists
+}
+
+// Custom slog handler for extracting values from context
+func (h *JSONHandler) Handle(ctx context.Context, r slog.Record) error {
+	if myField, exists := firstValueFromCtx(ctx); exists {
+		r.AddAttrs(slog.String(string(firstCtxField), myField))
+	}
+
+	if myField, exists := middleVlaueFromCtx(ctx); exists {
+		r.AddAttrs(slog.String(string(middleCtxField), myField))
+	}
+
+	return h.Handler.Handle(ctx, r)
+}
+
+type CtxField string
+
+var (
+	firstCtxField  CtxField = "firstCtxField"
+	middleCtxField CtxField = "middleCtxField"
+)
 
 // logging middleware
 func SloggerMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-
+		ctx = context.WithValue(ctx, firstCtxField, "first test")
 		scheme := scheme(r)
 		host := host(r)
 
 		// Filter out PIIs from request URL - i dont know how to implement this right now, it use sanitize TODO
 		urlQueryString := r.URL.Query()
 		requestPath := r.URL.Path
-		// if len(urlQueryString) > 0 {
-		requestPath = fmt.Sprintf("%s?%s", requestPath, urlQueryString.Encode())
-		// }
+		if len(urlQueryString) > 0 {
+			requestPath = fmt.Sprintf("%s?%s", requestPath, urlQueryString.Encode())
+		}
 
 		refererURL, err := url.Parse(r.Referer())
 		if err != nil {
@@ -98,7 +132,9 @@ func SloggerMiddleware(next http.Handler) http.Handler {
 
 			mes := fmt.Sprintf("HTTP %d (%v): %s %s", statusCode, timeTaken, r.Method, uri)
 
-			handler := slog.With(
+			// Todo part
+
+			attrs := []slog.Attr{
 				slog.String("verb", r.Method),
 				slog.String("scheme", scheme),
 				slog.String("fqdn", host),
@@ -112,10 +148,11 @@ func SloggerMiddleware(next http.Handler) http.Handler {
 				slog.Int("time_taken", int(timeTaken.Milliseconds())),
 				slog.Int("cs_bytes", requestBodyLength),
 				slog.Int("sc_bytes", responseBodyLength),
-			).Handler()
+			}
 
-			customHandler := &JSONHandler{Handler: handler}
-			slogger := slog.New(customHandler)
+			slogger := slog.New(&JSONHandler{
+				Handler: opts.NewJSONHandler(os.Stdout).WithAttrs(attrs),
+			})
 			slogger.LogAttrs(ctx, logLevel, mes)
 
 		}()
