@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/golang-cz/skeleton/pkg/slogger"
+	"golang.org/x/exp/slog"
 )
 
 type ShutdownFn func(context.Context) error
@@ -40,14 +41,14 @@ func Shutdown(shutdown ShutdownFn, timeout time.Duration) (wait chan struct{}, t
 		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
 
-		slogger := slogger.Slogger()
+		slog.SetDefault(slogger.Slogger())
 
-		slogger.Info("graceful: shutdown(): shutting down...")
+		slog.Info("graceful: shutdown(): shutting down...")
 
 		if err := shutdown(ctx); err != nil {
-			slogger.ErrorCtx(ctx, fmt.Sprintf("graceful: failed to shutdown(): %v", err))
+			slog.ErrorCtx(ctx, fmt.Sprintf("graceful: failed to shutdown(): %v", err))
 		}
-		slogger.Info("graceful: shutdown(): finished")
+		slog.Info("graceful: shutdown(): finished")
 
 		close(wait)
 	}(wait)

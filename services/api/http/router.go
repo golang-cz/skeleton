@@ -3,6 +3,7 @@ package apiHttp
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -39,6 +40,8 @@ func Router() chi.Router {
 
 	r.Get("/robots.txt", robots)
 
+	r.Get("/", status)
+
 	r.Get("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		w.Write([]byte(""))
@@ -50,4 +53,8 @@ func Router() chi.Router {
 func robots(w http.ResponseWriter, r *http.Request) {
 	// Disallow all robots. We don't want to be indexed by Google etc.
 	fmt.Fprintf(w, "User-agent: *\nDisallow: /\n")
+}
+
+func status(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte(fmt.Sprintf("Server running - %s\n", time.Now())))
 }
