@@ -18,6 +18,7 @@ type AppConfig struct {
 	DB             DBConfig    `toml:"db"`
 	Goose          GooseConfig `toml:"goose"`
 	Sentry         Sentry      `toml:"sentry"`
+	Environment    Environment `toml:"environment"`
 }
 
 type Sentry struct {

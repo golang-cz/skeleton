@@ -27,11 +27,11 @@ Skeleton app for all our go backends
 
 - Logging
 
-  - Local enviroment: unstructured logging
+  - Local environment: unstructured logging
 
     - Straight to console?
 
-  - Production enviroment: structured logging (json)
+  - Production environment: structured logging (json)
 
     - Straight to console?
 
