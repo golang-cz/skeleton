@@ -70,20 +70,10 @@ func firstValueFromCtx(ctx context.Context) (string, bool) {
 	return value, exists
 }
 
-// extractor of context values
-func middleVlaueFromCtx(ctx context.Context) (string, bool) {
-	value, exists := ctx.Value(middleCtxField).(string)
-	return value, exists
-}
-
 // Custom slog handler for extracting values from context
 func (h *JSONHandler) Handle(ctx context.Context, r slog.Record) error {
 	if myField, exists := firstValueFromCtx(ctx); exists {
 		r.AddAttrs(slog.String(string(firstCtxField), myField))
-	}
-
-	if myField, exists := middleVlaueFromCtx(ctx); exists {
-		r.AddAttrs(slog.String(string(middleCtxField), myField))
 	}
 
 	return h.Handler.Handle(ctx, r)
@@ -92,8 +82,7 @@ func (h *JSONHandler) Handle(ctx context.Context, r slog.Record) error {
 type CtxField string
 
 var (
-	firstCtxField  CtxField = "firstCtxField"
-	middleCtxField CtxField = "middleCtxField"
+	firstCtxField CtxField = "firstCtxField"
 )
 
 // logging middleware
