@@ -6,22 +6,22 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-type CtxField string
-
-var (
-	firstCtxField CtxField = "firstCtxField"
-)
+type ctxField string
 
 // extractor of context values
-func firstValueFromCtx(ctx context.Context) (string, bool) {
-	value, exists := ctx.Value(firstCtxField).(string)
+func ctxExtractor(ctx context.Context, ctxField ctxField) (string, bool) {
+	value, exists := ctx.Value(ctxField).(string)
 	return value, exists
 }
 
 // Custom slog handler for extracting values from context
-func (h *DefaultHandler) Handle(ctx context.Context, r slog.Record) error {
-	if myField, exists := firstValueFromCtx(ctx); exists {
-		r.AddAttrs(slog.String(string(firstCtxField), myField))
+func (h *defaultHandler) Handle(ctx context.Context, r slog.Record) error {
+
+	var ctxField ctxField = "vctraceid"
+	slogField := "vctraceid"
+
+	if myField, exists := ctxExtractor(ctx, ctxField); exists {
+		r.AddAttrs(slog.String(string(slogField), myField))
 	}
 
 	return h.Handler.Handle(ctx, r)

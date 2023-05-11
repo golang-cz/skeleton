@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/golang-cz/skeleton/pkg/version"
 	"golang.org/x/exp/slog"
 )
 
@@ -16,7 +17,7 @@ type Config struct {
 	DisableHandlerSuccessLog bool
 }
 
-type DefaultHandler struct {
+type defaultHandler struct {
 	slog.Handler
 }
 
@@ -35,6 +36,7 @@ func Register(slConf Config) error {
 
 	defaultAttrs := []slog.Attr{
 		slog.String("app", slConf.AppName),
+		slog.String("release", version.VERSION),
 	}
 
 	slog.SetDefault(textHandler(handlerOptions, defaultAttrs))
@@ -46,13 +48,13 @@ func Register(slConf Config) error {
 }
 
 func jsonHandler(handlerOptions slog.HandlerOptions, attrs []slog.Attr) *slog.Logger {
-	return slog.New(&DefaultHandler{
+	return slog.New(&defaultHandler{
 		Handler: handlerOptions.NewJSONHandler(os.Stdout).WithAttrs(attrs),
 	})
 }
 
 func textHandler(handlerOptions slog.HandlerOptions, attrs []slog.Attr) *slog.Logger {
-	return slog.New(&DefaultHandler{
+	return slog.New(&defaultHandler{
 		Handler: handlerOptions.NewTextHandler(os.Stdout).WithAttrs(attrs),
 	})
 }
