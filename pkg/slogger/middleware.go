@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/middleware"
+	"github.com/golang-cz/skeleton/internal/sanitize"
 	"golang.org/x/exp/slog"
 )
 
@@ -21,7 +22,7 @@ func SloggerMiddleware(next http.Handler) http.Handler {
 		host := host(r)
 
 		// Filter out PIIs from request URL - i dont know how to implement this right now, it use sanitize TODO
-		urlQueryString := r.URL.Query()
+		urlQueryString := sanitize.FilterPIIParams(r.URL.Query())
 		requestPath := r.URL.Path
 		if len(urlQueryString) > 0 {
 			requestPath = fmt.Sprintf("%s?%s", requestPath, urlQueryString.Encode())
@@ -31,7 +32,7 @@ func SloggerMiddleware(next http.Handler) http.Handler {
 		if err != nil {
 			refererURL = &url.URL{}
 		}
-		// refererURL.RawQuery = sanitize.FilterPIIParams(refererURL.Query()).Encode()
+		refererURL.RawQuery = sanitize.FilterPIIParams(refererURL.Query()).Encode()
 
 		uri := fmt.Sprintf("%s://%s", scheme, host)
 
@@ -59,6 +60,7 @@ func SloggerMiddleware(next http.Handler) http.Handler {
 				slog.String("request", requestPath),
 				slog.String("clientip", r.RemoteAddr),
 				slog.String("useragent", r.UserAgent()),
+				// Here is used key "referrer", but the word itself should be "referer"?
 				slog.String("referrer", refererURL.String()),
 				slog.String("querystring", urlQueryString.Encode()),
 				slog.String("uri", uri),
