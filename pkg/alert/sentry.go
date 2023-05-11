@@ -14,7 +14,6 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	"github.com/golang-cz/skeleton/config"
-	"github.com/golang-cz/skeleton/pkg/slogger"
 	"github.com/golang-cz/skeleton/pkg/version"
 	"golang.org/x/exp/slog"
 )
@@ -139,7 +138,6 @@ func sendEvent(ctx context.Context, err error) error {
 		ctx = context.Background()
 	}
 
-	slog.SetDefault(slogger.Slogger())
 	slog.Log(ctx, slog.LevelError, "mes")
 
 	ev := newSentryEvent(err)

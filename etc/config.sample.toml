@@ -1,5 +1,5 @@
 bind_address = ":8877"
-environment = "local"
+environment = "production"
 disable_handler_success_log = false
 
 [db]
