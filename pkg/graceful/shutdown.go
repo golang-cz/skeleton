@@ -9,7 +9,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/golang-cz/skeleton/pkg/slogger"
 	"golang.org/x/exp/slog"
 )
 
@@ -40,8 +39,6 @@ func Shutdown(shutdown ShutdownFn, timeout time.Duration) (wait chan struct{}, t
 
 		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
-
-		slog.SetDefault(slogger.Slogger())
 
 		slog.Info("graceful: shutdown(): shutting down...")
 

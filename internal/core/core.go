@@ -32,19 +32,14 @@ func SetupApp(conf *config.AppConfig, appName, version string) error {
 
 	slConf := slogger.Config{
 		AppName:                  appName,
-		Version:                  version,
 		Level:                    level,
+		Production:               isProdEnvironment,
+		Version:                  version,
 		DisableHandlerSuccessLog: conf.DisableHandlerSuccessLog,
 	}
 
-	if isProdEnvironment {
-		if err := slogger.RegisterProd(slConf); err != nil {
-			return fmt.Errorf("failed to setup log: %w", err)
-		}
-	} else {
-		if err := slogger.RegisterDev(slConf); err != nil {
-			return fmt.Errorf("failed to setup log: %w", err)
-		}
+	if err := slogger.Register(slConf); err != nil {
+		return fmt.Errorf("failed to setup log: %w", err)
 	}
 
 	err = alert.Register(conf.Sentry.DSN, conf.Environment)

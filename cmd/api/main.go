@@ -11,7 +11,6 @@ import (
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/internal/core"
 	"github.com/golang-cz/skeleton/pkg/graceful"
-	"github.com/golang-cz/skeleton/pkg/slogger"
 	"github.com/golang-cz/skeleton/pkg/version"
 	"github.com/golang-cz/skeleton/services/api"
 	apiHttp "github.com/golang-cz/skeleton/services/api/http"
@@ -25,7 +24,7 @@ var (
 
 func main() {
 	flags.Parse(os.Args[1:])
-	slog.SetDefault(slogger.Slogger())
+
 	// Read config.toml file
 	file, err := os.Open(*confFile)
 	if err != nil {
