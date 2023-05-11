@@ -1,6 +1,7 @@
 package slogger
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -12,6 +13,8 @@ import (
 	"golang.org/x/exp/slog"
 )
 
+type ctxField string
+
 func SloggerMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -19,7 +22,7 @@ func SloggerMiddleware(next http.Handler) http.Handler {
 		scheme := scheme(r)
 		host := host(r)
 
-		// Filter out PIIs from request URL
+		// Filter out PIIs from request URL - i dont know how to implement this right now, it use sanitize TODO
 		urlQueryString := sanitize.FilterPIIParams(r.URL.Query())
 		requestPath := r.URL.Path
 		if len(urlQueryString) > 0 {
@@ -58,7 +61,7 @@ func SloggerMiddleware(next http.Handler) http.Handler {
 				slog.String("request", requestPath),
 				slog.String("clientip", r.RemoteAddr),
 				slog.String("useragent", r.UserAgent()),
-				// Here is used key "referrer", but the word itself should be "referer"?
+				// Here is used key "referrer", but the word itself should be "referer"? https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referer
 				slog.String("referrer", refererURL.String()),
 				slog.String("querystring", urlQueryString.Encode()),
 				slog.String("uri", uri),
@@ -133,4 +136,22 @@ func statusLevel(status int) slog.Level {
 	default:
 		return slog.LevelInfo
 	}
+}
+
+// extractor of context values
+func ctxExtractor(ctx context.Context, ctxField ctxField) (string, bool) {
+	value, exists := ctx.Value(ctxField).(string)
+	return value, exists
+}
+
+// Custom slog handler for extracting values from context
+func (h *defaultHandler) Handle(ctx context.Context, r slog.Record) error {
+	var ctxField ctxField = "vctraceid"
+	slogField := "vctraceid"
+
+	if myField, exists := ctxExtractor(ctx, ctxField); exists {
+		r.AddAttrs(slog.String(string(slogField), myField))
+	}
+
+	return h.Handler.Handle(ctx, r)
 }
