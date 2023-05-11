@@ -16,12 +16,10 @@ func SloggerMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
-		// ctx = context.WithValue(ctx, firstCtxField, "first ctx field")
-
 		scheme := scheme(r)
 		host := host(r)
 
-		// Filter out PIIs from request URL - i dont know how to implement this right now, it use sanitize TODO
+		// Filter out PIIs from request URL
 		urlQueryString := sanitize.FilterPIIParams(r.URL.Query())
 		requestPath := r.URL.Path
 		if len(urlQueryString) > 0 {
