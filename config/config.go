@@ -13,12 +13,13 @@ var App AppConfig
 var DebugMode = false
 
 type AppConfig struct {
-	AllowedOrigins []string    `toml:"allowed_origins"`
-	Port           string      `toml:"bind_address"`
-	DB             DBConfig    `toml:"db"`
-	Goose          GooseConfig `toml:"goose"`
-	Sentry         Sentry      `toml:"sentry"`
-	Environment    Environment `toml:"environment"`
+	AllowedOrigins           []string    `toml:"allowed_origins"`
+	Port                     string      `toml:"bind_address"`
+	DB                       DBConfig    `toml:"db"`
+	Goose                    GooseConfig `toml:"goose"`
+	Sentry                   Sentry      `toml:"sentry"`
+	Environment              Environment `toml:"environment"`
+	DisableHandlerSuccessLog bool        `toml:"disable_handler_success_log"`
 }
 
 type Sentry struct {
