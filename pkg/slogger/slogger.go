@@ -13,55 +13,59 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-var opts = slog.HandlerOptions{
-	AddSource: true,
-	ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
-		// Converting time of log to UTC format
-		if a.Key == slog.TimeKey {
-			inputLayout := "2006-01-02 15:04:05.999999999 -0700 MST"
-			outputLayout := "2006-01-02T15:04:05Z0700"
-
-			inputTime, err := time.Parse(inputLayout, a.Value.String())
-			if err != nil {
-				panic(err)
-			}
-
-			outputTime := inputTime.UTC()
-			a.Value = slog.StringValue(outputTime.Format(outputLayout))
-
-			return a
-		}
-
-		// Converting log level to lowercase
-		if a.Key == slog.LevelKey {
-			a.Value = slog.StringValue(strings.ToLower(a.Value.String()))
-			return a
-		}
-
-		// changing key from "source" to "caller"
-		if a.Key == slog.SourceKey {
-			a.Key = "caller"
-			return a
-		}
-
-		return a
-	},
+type Config struct {
+	AppName                  string
+	Version                  string
+	Level                    slog.Leveler
+	DisableHandlerSuccessLog bool
 }
 
 type JSONHandler struct {
 	slog.Handler
 }
 
-func Slogger() *slog.Logger {
-	handler := &JSONHandler{
-		Handler: opts.NewJSONHandler(os.Stdout),
+var config Config
+
+var defaultAttrs []slog.Attr
+
+var handlerOptions slog.HandlerOptions
+
+func RegisterProd(slConf Config) error {
+	config = slConf
+	handlerOptions = slog.HandlerOptions{
+		AddSource:   true,
+		Level:       slConf.Level,
+		ReplaceAttr: replaceAttr,
 	}
 
-	slogger := slog.New(handler)
+	defaultAttrs = []slog.Attr{
+		slog.String("app", slConf.AppName),
+	}
 
-	slog.SetDefault(slogger)
+	return nil
+}
 
-	return slogger
+func RegisterDev(slConf Config) error {
+	config = slConf
+	handlerOptions = slog.HandlerOptions{
+		AddSource:   true,
+		Level:       slConf.Level,
+		ReplaceAttr: replaceAttr,
+	}
+
+	defaultAttrs = []slog.Attr{
+		slog.String("app", slConf.AppName),
+	}
+
+	return nil
+}
+
+func Slogger() *slog.Logger {
+	handler := &JSONHandler{
+		Handler: handlerOptions.NewJSONHandler(os.Stdout),
+	}
+
+	return slog.New(handler)
 }
 
 // extractor of context values
@@ -119,6 +123,10 @@ func SloggerMiddleware(next http.Handler) http.Handler {
 			statusCode := ww.Status()
 			logLevel := statusLevel(statusCode)
 
+			if logLevel == slog.LevelInfo && config.DisableHandlerSuccessLog {
+				return
+			}
+
 			mes := fmt.Sprintf("HTTP %d (%v): %s %s", statusCode, timeTaken, r.Method, uri)
 
 			// Todo part
@@ -139,9 +147,12 @@ func SloggerMiddleware(next http.Handler) http.Handler {
 				slog.Int("sc_bytes", responseBodyLength),
 			}
 
+			attrs = append(attrs, defaultAttrs...)
+
 			slogger := slog.New(&JSONHandler{
-				Handler: opts.NewJSONHandler(os.Stdout).WithAttrs(attrs),
+				Handler: handlerOptions.NewJSONHandler(os.Stdout).WithAttrs(attrs),
 			})
+
 			slogger.LogAttrs(ctx, logLevel, mes)
 
 		}()
@@ -211,4 +222,37 @@ func statusLevel(status int) slog.Level {
 	default:
 		return slog.LevelInfo
 	}
+}
+
+func replaceAttr(groups []string, a slog.Attr) slog.Attr {
+	// Converting time of log to UTC format
+	if a.Key == slog.TimeKey {
+		inputLayout := "2006-01-02 15:04:05.999999999 -0700 MST"
+		outputLayout := "2006-01-02T15:04:05Z0700"
+
+		inputTime, err := time.Parse(inputLayout, a.Value.String())
+		if err != nil {
+			panic(err)
+		}
+
+		outputTime := inputTime.UTC()
+		a.Value = slog.StringValue(outputTime.Format(outputLayout))
+
+		return a
+	}
+
+	// Converting log level to lowercase
+	if a.Key == slog.LevelKey {
+		a.Value = slog.StringValue(strings.ToLower(a.Value.String()))
+		return a
+	}
+
+	// Changing key from "source" to "caller"
+	// For now it is commented, if you want to use key name as "caller", just uncomment next 4 lines
+	// if a.Key == slog.SourceKey {
+	// 	a.Key = "caller"
+	// 	return a
+	// }
+
+	return a
 }

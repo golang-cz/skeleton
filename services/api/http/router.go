@@ -33,7 +33,7 @@ func Router() chi.Router {
 		AllowedOrigins: config.App.AllowedOrigins,
 		AllowedMethods: []string{"GET", "POST", "OPTIONS"},
 		AllowedHeaders: []string{
-			"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "X-FE-Route"},
+			"Accept", "Authorization", "Content-Type"},
 		AllowCredentials: true,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	})

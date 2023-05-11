@@ -25,7 +25,7 @@ var (
 
 func main() {
 	flags.Parse(os.Args[1:])
-
+	slog.SetDefault(slogger.Slogger())
 	// Read config.toml file
 	file, err := os.Open(*confFile)
 	if err != nil {
@@ -51,7 +51,6 @@ func main() {
 
 	defer app.Close()
 
-	slog.SetDefault(slogger.Slogger())
 	slog.Info(fmt.Sprintf("running application in %s environment version %s", api.App.Config.Environment.String(), version.VERSION))
 
 	srv := &http.Server{

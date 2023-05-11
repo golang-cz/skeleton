@@ -1,3 +1,7 @@
+bind_address = ":8877"
+environment = "local"
+disable_handler_success_log = false
+
 [db]
     app_name = "skeleton"
     conn_max_lifetime = "1800s"
