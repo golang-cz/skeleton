@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/middleware"
+	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/internal/sanitize"
 	"golang.org/x/exp/slog"
 )
@@ -123,7 +124,7 @@ func parseForwarded(forwarded string) (addr, proto, host string) {
 
 func statusLevel(status int) slog.Level {
 	switch {
-	case status < 400 && g_disableHandlerSuccessLog:
+	case status < 400 && config.App.DisableHandlerSuccessLog:
 		return slog.LevelDebug
 	case status < 400:
 		return slog.LevelInfo

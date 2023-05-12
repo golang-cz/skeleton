@@ -18,10 +18,6 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-func Flush() {
-	sentry.Flush(2 * time.Second)
-}
-
 func Register(dsn string, environment config.Environment) error {
 	sentrySyncTransport := sentry.NewHTTPSyncTransport()
 	sentrySyncTransport.Timeout = time.Second * 3

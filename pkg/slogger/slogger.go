@@ -9,24 +9,13 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-type Config struct {
-	AppName                  string
-	Production               bool
-	Version                  string
-	DisableHandlerSuccessLog bool
-}
-
 type defaultHandler struct {
 	slog.Handler
 }
 
-var g_disableHandlerSuccessLog bool
-
-func Register(slConf Config) error {
-	g_disableHandlerSuccessLog = slConf.DisableHandlerSuccessLog
-
+func Register(appName string, production bool) {
 	level := slog.LevelDebug
-	if slConf.Production {
+	if production {
 		level = slog.LevelInfo
 	}
 
@@ -37,13 +26,11 @@ func Register(slConf Config) error {
 	}
 
 	defaultAttrs := []slog.Attr{
-		slog.String("app", slConf.AppName),
+		slog.String("app", appName),
 		slog.String("release", version.VERSION),
 	}
 
-	slog.SetDefault(setDefaultHandler(handlerOptions, defaultAttrs, slConf.Production))
-
-	return nil
+	slog.SetDefault(setDefaultHandler(handlerOptions, defaultAttrs, production))
 }
 
 func setDefaultHandler(handlerOptions slog.HandlerOptions, attrs []slog.Attr, production bool) *slog.Logger {

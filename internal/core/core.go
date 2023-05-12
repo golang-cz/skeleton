@@ -19,21 +19,10 @@ func SetupApp(conf *config.AppConfig, appName, version string) error {
 	if err != nil {
 		return err
 	}
-
 	time.Local = utcLocation
 
-	isProdEnvironment := conf.Environment.IsProduction()
-
-	slConf := slogger.Config{
-		AppName:                  appName,
-		Production:               isProdEnvironment,
-		Version:                  version,
-		DisableHandlerSuccessLog: conf.DisableHandlerSuccessLog,
-	}
-
-	if err := slogger.Register(slConf); err != nil {
-		return fmt.Errorf("setup log: %w", err)
-	}
+	// Setting default logger
+	slogger.Register(appName, conf.Environment.IsProduction())
 
 	if err := alert.Register(conf.Sentry.DSN, conf.Environment); err != nil {
 		return fmt.Errorf("failed to init sentry: %w", err)
