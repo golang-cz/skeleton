@@ -8,7 +8,6 @@ import (
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/pkg/alert"
 	"github.com/golang-cz/skeleton/pkg/slogger"
-	"golang.org/x/exp/slog"
 )
 
 func SetupApp(conf *config.AppConfig, appName, version string) error {
@@ -25,25 +24,18 @@ func SetupApp(conf *config.AppConfig, appName, version string) error {
 
 	isProdEnvironment := conf.Environment.IsProduction()
 
-	level := slog.LevelDebug
-	if isProdEnvironment {
-		level = slog.LevelInfo
-	}
-
 	slConf := slogger.Config{
 		AppName:                  appName,
-		Level:                    level,
 		Production:               isProdEnvironment,
 		Version:                  version,
 		DisableHandlerSuccessLog: conf.DisableHandlerSuccessLog,
 	}
 
 	if err := slogger.Register(slConf); err != nil {
-		return fmt.Errorf("failed to setup log: %w", err)
+		return fmt.Errorf("setup log: %w", err)
 	}
 
-	err = alert.Register(conf.Sentry.DSN, conf.Environment)
-	if err != nil {
+	if err := alert.Register(conf.Sentry.DSN, conf.Environment); err != nil {
 		return fmt.Errorf("failed to init sentry: %w", err)
 	}
 
