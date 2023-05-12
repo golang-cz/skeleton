@@ -42,19 +42,15 @@ func SloggerMiddleware(next http.Handler) http.Handler {
 
 		defer func() {
 
-			timeTaken := time.Since(requestStart)
-			responseBodyLength := ww.BytesWritten()
-			requestBodyLength := int(r.ContentLength)
 			statusCode := ww.Status()
+			timeTaken := time.Since(requestStart)
+			requestBodyLength := int(r.ContentLength)
+			responseBodyLength := ww.BytesWritten()
 			logLevel := statusLevel(statusCode)
 
-			if logLevel == slog.LevelInfo && g_disableHandlerSuccessLog {
-				return
-			}
+			msg := fmt.Sprintf("HTTP %d (%v): %s %s", statusCode, timeTaken, r.Method, uri)
 
-			mes := fmt.Sprintf("HTTP %d (%v): %s %s", statusCode, timeTaken, r.Method, uri)
-
-			slog.LogAttrs(ctx, logLevel, mes,
+			slog.LogAttrs(ctx, logLevel, msg,
 				slog.String("verb", r.Method),
 				slog.String("scheme", scheme),
 				slog.String("fqdn", host),
@@ -127,6 +123,8 @@ func parseForwarded(forwarded string) (addr, proto, host string) {
 
 func statusLevel(status int) slog.Level {
 	switch {
+	case status < 400 && g_disableHandlerSuccessLog:
+		return slog.LevelDebug
 	case status < 400:
 		return slog.LevelInfo
 	case status >= 400 && status < 500:

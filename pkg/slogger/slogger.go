@@ -11,7 +11,6 @@ import (
 
 type Config struct {
 	AppName                  string
-	Level                    slog.Leveler
 	Production               bool
 	Version                  string
 	DisableHandlerSuccessLog bool
@@ -21,16 +20,19 @@ type defaultHandler struct {
 	slog.Handler
 }
 
-var (
-	g_disableHandlerSuccessLog bool
-)
+var g_disableHandlerSuccessLog bool
 
 func Register(slConf Config) error {
 	g_disableHandlerSuccessLog = slConf.DisableHandlerSuccessLog
 
+	level := slog.LevelDebug
+	if slConf.Production {
+		level = slog.LevelInfo
+	}
+
 	handlerOptions := slog.HandlerOptions{
 		AddSource:   true,
-		Level:       slConf.Level,
+		Level:       level,
 		ReplaceAttr: replaceAttr,
 	}
 
@@ -39,24 +41,21 @@ func Register(slConf Config) error {
 		slog.String("release", version.VERSION),
 	}
 
-	slog.SetDefault(textHandler(handlerOptions, defaultAttrs))
-	if slConf.Production {
-		slog.SetDefault(jsonHandler(handlerOptions, defaultAttrs))
-	}
+	slog.SetDefault(setDefaultHandler(handlerOptions, defaultAttrs, slConf.Production))
 
 	return nil
 }
 
-func jsonHandler(handlerOptions slog.HandlerOptions, attrs []slog.Attr) *slog.Logger {
-	return slog.New(&defaultHandler{
-		Handler: handlerOptions.NewJSONHandler(os.Stdout).WithAttrs(attrs),
-	})
-}
-
-func textHandler(handlerOptions slog.HandlerOptions, attrs []slog.Attr) *slog.Logger {
-	return slog.New(&defaultHandler{
-		Handler: handlerOptions.NewTextHandler(os.Stdout).WithAttrs(attrs),
-	})
+func setDefaultHandler(handlerOptions slog.HandlerOptions, attrs []slog.Attr, production bool) *slog.Logger {
+	if production {
+		return slog.New(&defaultHandler{
+			Handler: handlerOptions.NewJSONHandler(os.Stdout).WithAttrs(attrs),
+		})
+	} else {
+		return slog.New(&defaultHandler{
+			Handler: handlerOptions.NewTextHandler(os.Stdout).WithAttrs(attrs),
+		})
+	}
 }
 
 func replaceAttr(groups []string, a slog.Attr) slog.Attr {

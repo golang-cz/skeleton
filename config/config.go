@@ -54,7 +54,7 @@ type GooseConfig struct {
 func NewFromReader(content io.Reader) (*AppConfig, error) {
 	_, err := toml.NewDecoder(content).Decode(&App)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse config content: %w", err)
+		return nil, fmt.Errorf("parse config content: %w", err)
 	}
 
 	return &App, nil
