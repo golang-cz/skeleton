@@ -9,9 +9,10 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/middleware"
+	"golang.org/x/exp/slog"
+
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/internal/sanitize"
-	"golang.org/x/exp/slog"
 )
 
 type ctxField string
@@ -42,7 +43,6 @@ func SloggerMiddleware(next http.Handler) http.Handler {
 		ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
 
 		defer func() {
-
 			statusCode := ww.Status()
 			timeTaken := time.Since(requestStart)
 			requestBodyLength := int(r.ContentLength)

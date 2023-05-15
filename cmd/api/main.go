@@ -8,13 +8,14 @@ import (
 	"os"
 	"time"
 
+	"golang.org/x/exp/slog"
+
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/internal/core"
 	"github.com/golang-cz/skeleton/pkg/graceful"
 	"github.com/golang-cz/skeleton/pkg/version"
 	"github.com/golang-cz/skeleton/services/api"
 	apiHttp "github.com/golang-cz/skeleton/services/api/http"
-	"golang.org/x/exp/slog"
 )
 
 var (
@@ -50,7 +51,13 @@ func main() {
 
 	defer app.Close()
 
-	slog.Info(fmt.Sprintf("running application in %s environment version %s", api.App.Config.Environment.String(), version.VERSION))
+	slog.Info(
+		fmt.Sprintf(
+			"running application in %s environment version %s",
+			api.App.Config.Environment.String(),
+			version.VERSION,
+		),
+	)
 
 	srv := &http.Server{
 		Addr:              api.App.Config.Port,
