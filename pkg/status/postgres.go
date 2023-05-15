@@ -4,12 +4,10 @@ import (
 	"context"
 	"fmt"
 	"time"
-
-	"github.com/golang-cz/skeleton/pkg/bond"
 )
 
 type Postgres struct {
-	GetDB func() bond.Backend
+	GetDB func() Backend
 }
 
 var _ Probe = &Postgres{}

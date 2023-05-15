@@ -5,6 +5,7 @@ import (
 
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/data"
+	"golang.org/x/exp/slog"
 )
 
 var App *API
@@ -26,5 +27,7 @@ func New(conf *config.AppConfig) (*API, error) {
 }
 
 func (app *API) Close() {
-	data.Close()
+	slog.Info("API: closing NATS & DB connections..")
+
+	App.DbSession.Session.Close()
 }

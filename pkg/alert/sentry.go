@@ -13,9 +13,10 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
+	"golang.org/x/exp/slog"
+
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/pkg/version"
-	"golang.org/x/exp/slog"
 )
 
 func Register(dsn string, environment config.Environment) error {

@@ -14,9 +14,11 @@ var DB *Database
 
 type Database struct {
 	Session db.Session
+
+	User User
 }
 
-func NewDBSession(conf config.DBConfig) (*db.Session, error) {
+func NewDBSession(conf config.DBConfig) (db.Session, error) {
 	if conf.Host == "" {
 		return nil, errors.New("failed to connect to DB: no host")
 	}
@@ -50,5 +52,12 @@ func NewDBSession(conf config.DBConfig) (*db.Session, error) {
 		)
 	}
 
-	return &DB, nil
+	// var user User
+	//
+	// err = DB.Get(&user, db.Cond{"title": "The Shining"})
+	// if err != nil {
+	// 	log.Printf("User from DB")
+	// }
+
+	return DB, nil
 }

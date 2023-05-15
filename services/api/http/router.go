@@ -8,11 +8,11 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/rs/cors"
+
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/pkg/alert"
 	"github.com/golang-cz/skeleton/pkg/slogger"
-
-	"github.com/rs/cors"
 )
 
 func Router() chi.Router {
@@ -33,7 +33,8 @@ func Router() chi.Router {
 		AllowedOrigins: config.App.AllowedOrigins,
 		AllowedMethods: []string{"GET", "POST", "OPTIONS"},
 		AllowedHeaders: []string{
-			"Accept", "Authorization", "Content-Type"},
+			"Accept", "Authorization", "Content-Type",
+		},
 		AllowCredentials: true,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	})
@@ -42,6 +43,7 @@ func Router() chi.Router {
 
 	r.Get("/robots.txt", robots)
 	r.Get("/status", status)
+	// r.Get("/_api/status", httpStatus.StatusPage)
 	r.Get("/sentry", sentry)
 
 	r.Get("/favicon.ico", favicon)

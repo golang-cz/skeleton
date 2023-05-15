@@ -5,15 +5,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang-cz/skeleton/pkg/version"
 	"golang.org/x/exp/slog"
+
+	"github.com/golang-cz/skeleton/pkg/version"
 )
 
 type defaultHandler struct {
 	slog.Handler
 }
 
-func Register(appName string, production bool) {
+func Register(appName string, production bool) *slog.Logger {
 	level := slog.LevelDebug
 	if production {
 		level = slog.LevelInfo
@@ -29,11 +30,16 @@ func Register(appName string, production bool) {
 		slog.String("app", appName),
 		slog.String("release", version.VERSION),
 	}
-
+	handler := setDefaultHandler(handlerOptions, defaultAttrs, production)
 	slog.SetDefault(setDefaultHandler(handlerOptions, defaultAttrs, production))
+	return handler
 }
 
-func setDefaultHandler(handlerOptions slog.HandlerOptions, attrs []slog.Attr, production bool) *slog.Logger {
+func setDefaultHandler(
+	handlerOptions slog.HandlerOptions,
+	attrs []slog.Attr,
+	production bool,
+) *slog.Logger {
 	if production {
 		return slog.New(&defaultHandler{
 			Handler: handlerOptions.NewJSONHandler(os.Stdout).WithAttrs(attrs),
