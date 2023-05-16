@@ -20,12 +20,13 @@ var migrations embed.FS
 func RunMigrations(args []string, conf *config.AppConfig) error {
 	db, err := data.NewDBSession(conf.DB)
 	if err != nil {
-		return fmt.Errorf("connect to main DB: %w", err)
+		return fmt.Errorf("connect to DB: %w", err)
 	}
 
 	goose.SetBaseFS(migrations)
 
-	if err := goose.SetDialect(conf.Goose.Driver); err != nil {
+	err = goose.SetDialect(conf.Goose.Driver)
+	if err != nil {
 		return fmt.Errorf("set dialect: %w", err)
 	}
 
@@ -58,8 +59,7 @@ func RunMigrations(args []string, conf *config.AppConfig) error {
 	}
 
 	for {
-		driver := db.Driver().(*sql.DB)
-		err := goose.Run(cmd, driver, dir, args[1:]...)
+		err := goose.Run(cmd, db.Driver().(*sql.DB), dir, args[1:]...)
 		if err == goose.ErrNoNextVersion || err == goose.ErrNoCurrentVersion {
 			return nil
 		}
@@ -97,7 +97,7 @@ func RunMigrations(args []string, conf *config.AppConfig) error {
 
 		db, err = data.NewDBSession(conf.DB)
 		if err != nil {
-			slog.Error(err.Error())
+			return fmt.Errorf("connect to DB: %w", err)
 		}
 
 	}

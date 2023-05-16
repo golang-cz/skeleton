@@ -22,6 +22,16 @@ func main() {
 	flags.Usage = usage
 	flags.Parse(os.Args[1:])
 
+	args := flags.Args()
+	if len(args) < 1 {
+		log.Fatal("no command provided")
+	}
+
+	if args[0] == "-h" || args[0] == "--help" {
+		flags.Usage()
+		return
+	}
+
 	file, err := os.Open(*confFile)
 	if err != nil {
 		log.Fatal(err)
@@ -38,16 +48,6 @@ func main() {
 	}
 
 	conf.DB.IsMigration = true
-
-	args := flags.Args()
-	if len(args) < 1 {
-		log.Fatal("no command provided")
-	}
-
-	if args[0] == "-h" || args[0] == "--help" {
-		flags.Usage()
-		return
-	}
 
 	err = core.SetupApp(conf, "Skeleton-Migration", version.VERSION)
 	if err != nil {
