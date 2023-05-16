@@ -1,7 +1,5 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE EXTENSION "uuid-ossp";
-
 CREATE TABLE users
 (
     id          UUID PRIMARY KEY NOT NULL,
@@ -17,6 +15,5 @@ CREATE INDEX users_id_idx ON users USING btree (id);
 
 -- +goose Down
 -- +goose StatementBegin
-DROP EXTENSION IF EXISTS "uuid-ossp";
 DROP TABLE IF EXISTS users;
 -- +goose StatementEnd
