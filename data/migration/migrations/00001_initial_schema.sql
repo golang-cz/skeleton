@@ -1,11 +1,11 @@
 -- +goose Up
 -- +goose StatementBegin
-
 CREATE TABLE users
 (
     id          BIGSERIAL PRIMARY KEY,
-    external_id UUID         NOT NULL,
     email       VARCHAR(255) NOT NULL,
+    firstname       VARCHAR(255) NOT NULL,
+    lastname       VARCHAR(255) NOT NULL,
     created_at  TIMESTAMP    NOT NULL,
     updated_at  TIMESTAMP
 );

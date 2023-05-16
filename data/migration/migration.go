@@ -8,7 +8,6 @@ import (
 
 	"github.com/lib/pq"
 	"github.com/pressly/goose/v3"
-	"golang.org/x/exp/slog"
 
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/data/database"
@@ -85,7 +84,7 @@ func RunMigrations(args []string, conf *config.AppConfig) error {
 				)
 			}
 
-			slog.Error(err.Error())
+			return fmt.Errorf("running migration: %w", err)
 		}
 
 		if !loop {
