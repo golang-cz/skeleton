@@ -3,9 +3,10 @@ package api
 import (
 	"fmt"
 
-	"github.com/golang-cz/skeleton/config"
-	"github.com/golang-cz/skeleton/data"
 	"golang.org/x/exp/slog"
+
+	"github.com/golang-cz/skeleton/config"
+	"github.com/golang-cz/skeleton/data/database"
 )
 
 var App *API

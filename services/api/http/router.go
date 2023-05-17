@@ -1,6 +1,7 @@
 package apiHttp
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -44,11 +45,47 @@ func Router() chi.Router {
 	r.Get("/robots.txt", robots)
 	r.Get("/status", status)
 	// r.Get("/_api/status", httpStatus.StatusPage)
+
 	r.Get("/sentry", sentry)
 
 	r.Get("/favicon.ico", favicon)
-
+	r.Route("/api", func(r chi.Router) {
+		r.Route("/user", func(r chi.Router) {
+			r.Route("/{uuid}", func(r chi.Router) {
+				r.Use(UserCtx)
+				r.Get("/detail", getUser)
+			})
+		})
+	})
 	return r
+}
+
+func UserCtx(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		userID := chi.URLParam(r, "uuid")
+		user, err := dbGetUser(userID)
+		if err != nil {
+			http.Error(w, http.StatusText(404), 404)
+			return
+		}
+		ctx := context.WithValue(r.Context(), "user", user)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func dbGetUser(userID string) (user string, err error) {
+	return userID, nil
+}
+
+func getUser(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	user, ok := ctx.Value("user").(string)
+	if !ok {
+		http.Error(w, http.StatusText(422), 422)
+		return
+	}
+
+	w.Write([]byte(fmt.Sprintf("user-uuid:%s", user)))
 }
 
 func robots(w http.ResponseWriter, r *http.Request) {
@@ -57,7 +94,7 @@ func robots(w http.ResponseWriter, r *http.Request) {
 }
 
 func status(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(fmt.Sprintf("Server running - %s\n", time.Now())))
+	w.Write([]byte(fmt.Sprintf("Server running!!! - %s\n", time.Now())))
 }
 
 func sentry(w http.ResponseWriter, r *http.Request) {
@@ -69,6 +106,11 @@ func sentry(w http.ResponseWriter, r *http.Request) {
 }
 
 func favicon(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(200)
+	w.Write([]byte(""))
+}
+
+func allUsers(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(200)
 	w.Write([]byte(""))
 }

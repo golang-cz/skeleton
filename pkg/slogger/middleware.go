@@ -19,8 +19,6 @@ type ctxField string
 
 func SloggerMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-
 		scheme := scheme(r)
 		host := host(r)
 
@@ -51,6 +49,8 @@ func SloggerMiddleware(next http.Handler) http.Handler {
 
 			msg := fmt.Sprintf("HTTP %d (%v): %s %s", statusCode, timeTaken, r.Method, uri)
 
+			ctx := r.Context()
+
 			slog.LogAttrs(ctx, logLevel, msg,
 				slog.String("verb", r.Method),
 				slog.String("scheme", scheme),
@@ -68,7 +68,7 @@ func SloggerMiddleware(next http.Handler) http.Handler {
 				slog.Int("sc_bytes", responseBodyLength))
 		}()
 
-		next.ServeHTTP(ww, r.WithContext(ctx))
+		next.ServeHTTP(ww, r)
 	})
 }
 
@@ -145,8 +145,8 @@ func ctxExtractor(ctx context.Context, ctxField ctxField) (string, bool) {
 
 // Custom slog handler for extracting values from context
 func (h *defaultHandler) Handle(ctx context.Context, r slog.Record) error {
-	var ctxField ctxField = "vctraceid"
-	slogField := "vctraceid"
+	var ctxField ctxField = "user"
+	slogField := "user"
 
 	if myField, exists := ctxExtractor(ctx, ctxField); exists {
 		r.AddAttrs(slog.String(string(slogField), myField))
