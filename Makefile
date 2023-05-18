@@ -25,7 +25,7 @@ all:
 init: tools vendor build
 start: up db-up
 stop: down
-clean: db-down-all down
+clean: db-reset down
 
 tools:
 	GOFLAGS="" go install github.com/VojtechVitek/rerun/cmd/rerun@latest
@@ -82,8 +82,8 @@ db-down:
 db-down-to: 
 	@./bin/goose -config=./etc/config.toml down-to $(MIGRATION_VERSION)
 
-db-down-all: 
-	@./bin/goose -config=./etc/config.toml down-to 0
+db-reset: 
+	@./bin/goose -config=./etc/config.toml reset
 
 db-status:
 	@./bin/goose -config=./etc/config.toml status
