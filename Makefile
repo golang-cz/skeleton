@@ -54,15 +54,21 @@ dev: dev-db-up db-up
 dev-jq: dev-db-up db-up
 	rerun -watch ./ -ignore vendor bin tests mounts -run sh -c 'go build -o ./bin/api ./cmd/api/main.go && ./bin/api -config=etc/config.toml | jq -S'
 
-
 # DOCKER
 
 up:
 	#	@docker network create -d bridge --subnet 172.24.0.0/16 convo &> /dev/null || :
 	@docker-compose up -d --remove-orphans
 
+up-build:
+	#	@docker network create -d bridge --subnet 172.24.0.0/16 convo &> /dev/null || :
+	@docker-compose up -d --remove-orphans --build
+
 down:
 	@docker-compose down --remove-orphans
+
+down-rmi:
+	@docker-compose down --remove-orphans --rmi all
 
 
 # GOOSE

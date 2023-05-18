@@ -28,7 +28,7 @@ func UserCtx(next http.Handler) http.Handler {
 		userID := chi.URLParam(r, "uuid")
 		user, err := dbGetUser(userID)
 		if err != nil {
-			http.Error(w, http.StatusText(404), 404)
+			http.Error(w, http.StatusText(418), 418)
 			return
 		}
 
