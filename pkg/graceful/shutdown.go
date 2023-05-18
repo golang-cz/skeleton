@@ -45,7 +45,7 @@ func Shutdown(
 		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
 
-		slog.Info("graceful: shutdown(): shutting down...")
+		slog.Info("graceful: shutdown: shutting down...")
 
 		if err := shutdown(ctx); err != nil {
 			slog.ErrorCtx(ctx, fmt.Sprintf("graceful: failed to shutdown(): %v", err))
