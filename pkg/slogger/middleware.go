@@ -40,7 +40,7 @@ func SloggerMiddleware(next http.Handler) http.Handler {
 		requestStart := time.Now()
 		ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
 
-		defer func() {
+		defer func(r *http.Request) {
 			statusCode := ww.Status()
 			timeTaken := time.Since(requestStart)
 			requestBodyLength := int(r.ContentLength)
@@ -66,7 +66,7 @@ func SloggerMiddleware(next http.Handler) http.Handler {
 				slog.Int("time_taken", int(timeTaken.Milliseconds())),
 				slog.Int("cs_bytes", requestBodyLength),
 				slog.Int("sc_bytes", responseBodyLength))
-		}()
+		}(r)
 
 		next.ServeHTTP(ww, r)
 	})

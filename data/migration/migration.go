@@ -58,7 +58,7 @@ func RunMigrations(args []string, conf *config.AppConfig) error {
 	}
 
 	for {
-		err := goose.Run(cmd, db.Driver().(*sql.DB), dir, args[1:]...)
+		err := goose.Run(cmd, db.Session.Driver().(*sql.DB), dir, args[1:]...)
 		if err == goose.ErrNoNextVersion || err == goose.ErrNoCurrentVersion {
 			return nil
 		}
@@ -92,7 +92,7 @@ func RunMigrations(args []string, conf *config.AppConfig) error {
 		}
 
 		// New DB session for each loop. Fixes upper/db cache bug after schema changes.
-		db.Close()
+		db.Session.Close()
 
 		db, err = data.NewDBSession(conf.DB)
 		if err != nil {

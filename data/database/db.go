@@ -15,10 +15,10 @@ var DB *Database
 type Database struct {
 	Session db.Session
 
-	User User
+	User UserStore
 }
 
-func NewDBSession(conf config.DBConfig) (db.Session, error) {
+func NewDBSession(conf config.DBConfig) (*Database, error) {
 	if conf.Host == "" {
 		return nil, errors.New("failed to connect to DB: no host")
 	}
@@ -41,7 +41,7 @@ func NewDBSession(conf config.DBConfig) (db.Session, error) {
 		connURL.Options["connect_timeout"] = fmt.Sprintf("%d", conf.ConnectionTimeout)
 	}
 
-	DB, err := postgresql.Open(connURL)
+	dbSession, err := postgresql.Open(connURL)
 	if err != nil {
 		return nil, fmt.Errorf(
 			"failed to connect to %v@%v/%v: %w",
@@ -52,12 +52,13 @@ func NewDBSession(conf config.DBConfig) (db.Session, error) {
 		)
 	}
 
-	// var user User
+	// var user UserStore
 	//
-	// err = DB.Get(&user, db.Cond{"title": "The Shining"})
+	// err = DB.Session.Get(&user, db.Cond{"title": "The Shining"})
 	// if err != nil {
 	// 	log.Printf("User from DB")
 	// }
 
+	DB = &Database{Session: dbSession}
 	return DB, nil
 }
