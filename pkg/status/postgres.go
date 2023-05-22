@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 	"time"
+
+	"github.com/upper/db/v4"
 )
 
 type Postgres struct {
-	GetDB func() Backend
+	GetDB func() db.Session
 }
 
 var _ Probe = &Postgres{}
@@ -31,7 +33,7 @@ func (p *Postgres) Run(_ context.Context) Result {
 		connectedApps  string
 		uptime         int64
 	)
-	row, err := db.QueryRow(`
+	row, err := db.SQL().QueryRow(`
 		SELECT
 			split_part(version(), ' ', 2),
 			(SELECT SUM(numbackends) FROM pg_stat_database),

@@ -13,6 +13,7 @@ import (
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/pkg/alert"
 	"github.com/golang-cz/skeleton/pkg/slogger"
+	"github.com/golang-cz/skeleton/services/api/http/status"
 	"github.com/golang-cz/skeleton/services/api/http/user"
 	"github.com/golang-cz/skeleton/services/api/http/users"
 )
@@ -44,12 +45,15 @@ func Router() chi.Router {
 	r.Use(corsHandler.Handler)
 
 	r.Get("/robots.txt", robots)
-	r.Get("/status", status)
-	// r.Get("/_api/status", httpStatus.StatusPage)
+	// r.Get("/status", status)
+	r.Get("/_api/status", httpStatus.StatusPage)
 
 	r.Get("/sentry", sentry)
 
 	r.Get("/favicon.ico", favicon)
+
+	r.Get("/status", favicon)
+
 	r.Route("/api", func(r chi.Router) {
 		r.Mount("/user", httpUser.Router())
 		r.Mount("/users", httpUsers.Router())
