@@ -19,7 +19,7 @@ func SetupApp(conf *config.AppConfig, appName, version string) error {
 
 	utcLocation, err := time.LoadLocation("UTC")
 	if err != nil {
-		return err
+		return fmt.Errorf("load utc location: %w", err)
 	}
 	time.Local = utcLocation
 

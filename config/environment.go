@@ -8,13 +8,17 @@ import (
 type Environment int
 
 const (
-	EnvLocal Environment = iota // 0
-	EnvProd                     // 1
+	EnvLocal Environment = iota
+	EnvTest
+	EnvCI
+	EnvProd
 )
 
 var environments = []string{
 	"local",      // 0
-	"production", // 1
+	"test",       // 1
+	"ci",         // 2
+	"production", // 3
 }
 
 func (e Environment) IsLocal() bool {
@@ -55,5 +59,10 @@ func (e *Environment) UnmarshalText(text []byte) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("unknown environment:%q\n  supported: %s", enum, strings.Join(environments, ", "))
+
+	return fmt.Errorf(
+		"unknown environment:%q\n  supported: %s",
+		enum,
+		strings.Join(environments, ", "),
+	)
 }

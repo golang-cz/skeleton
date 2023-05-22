@@ -28,26 +28,19 @@ func main() {
 
 	// Read config.toml file
 	file, err := os.Open(*confFile)
-	if err != nil {
-		log.Fatal(err)
-	}
+	ifErrLogFatal(err)
 
 	// Load and parse config file
 	conf, err := config.NewFromReader(file)
-	if err != nil {
-		log.Fatal(err)
-	}
+	ifErrLogFatal(err)
 
+	// Setup application
 	err = core.SetupApp(conf, "Skeleton-API", version.VERSION)
-	if err != nil {
-		log.Fatal(err)
-	}
+	ifErrLogFatal(err)
 
 	// Create app & connect to DB, NATS etc.
 	app, err := api.New(conf)
-	if err != nil {
-		log.Fatal(err)
-	}
+	ifErrLogFatal(err)
 
 	defer app.Close()
 
@@ -78,4 +71,10 @@ func main() {
 	}
 
 	<-wait
+}
+
+func ifErrLogFatal(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
 }
