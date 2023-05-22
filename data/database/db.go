@@ -52,13 +52,6 @@ func NewDBSession(conf config.DBConfig) (*Database, error) {
 		)
 	}
 
-	// var user UserStore
-	//
-	// err = DB.Session.Get(&user, db.Cond{"title": "The Shining"})
-	// if err != nil {
-	// 	log.Printf("User from DB")
-	// }
-
 	DB = &Database{Session: dbSession}
 	return DB, nil
 }

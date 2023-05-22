@@ -13,6 +13,7 @@ import (
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/pkg/alert"
 	"github.com/golang-cz/skeleton/pkg/slogger"
+	"github.com/golang-cz/skeleton/services/api/http/debug"
 	"github.com/golang-cz/skeleton/services/api/http/status"
 	"github.com/golang-cz/skeleton/services/api/http/user"
 	"github.com/golang-cz/skeleton/services/api/http/users"
@@ -25,12 +26,7 @@ func Router() chi.Router {
 	r.Use(middleware.Heartbeat("/ping"))
 	r.Use(middleware.RealIP)
 	r.Use(slogger.SloggerMiddleware)
-
-	if config.App.Environment.IsLocal() {
-		r.Use(middleware.Recoverer)
-	} else {
-		r.Use(middleware.Recoverer)
-	}
+	r.Use(middleware.Recoverer)
 
 	corsHandler := cors.New(cors.Options{
 		AllowedOrigins: config.App.AllowedOrigins,
@@ -45,16 +41,12 @@ func Router() chi.Router {
 	r.Use(corsHandler.Handler)
 
 	r.Get("/robots.txt", robots)
-	// r.Get("/status", status)
-	r.Get("/_api/status", httpStatus.StatusPage)
-
 	r.Get("/sentry", sentry)
-
 	r.Get("/favicon.ico", favicon)
-
-	r.Get("/status", favicon)
+	r.Mount("/", httpPprof.Router())
 
 	r.Route("/api", func(r chi.Router) {
+		r.Get("/status", httpStatus.StatusPage)
 		r.Mount("/user", httpUser.Router())
 		r.Mount("/users", httpUsers.Router())
 	})
@@ -65,10 +57,6 @@ func Router() chi.Router {
 func robots(w http.ResponseWriter, r *http.Request) {
 	// Disallow all robots. We don't want to be indexed by Google etc.
 	fmt.Fprintf(w, "User-agent: *\nDisallow: /\n")
-}
-
-func status(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(fmt.Sprintf("Server running!!! - %s\n", time.Now())))
 }
 
 func sentry(w http.ResponseWriter, r *http.Request) {
