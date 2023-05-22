@@ -57,11 +57,9 @@ dev-jq: dev-db-up db-up
 # DOCKER
 
 up:
-	#	@docker network create -d bridge --subnet 172.24.0.0/16 convo &> /dev/null || :
 	@docker-compose up -d --remove-orphans
 
 up-build:
-	#	@docker network create -d bridge --subnet 172.24.0.0/16 convo &> /dev/null || :
 	@docker-compose up -d --remove-orphans --build
 
 down:
