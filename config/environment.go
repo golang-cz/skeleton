@@ -59,7 +59,6 @@ func (e *Environment) UnmarshalText(text []byte) error {
 			return nil
 		}
 	}
-
 	return fmt.Errorf(
 		"unknown environment:%q\n  supported: %s",
 		enum,

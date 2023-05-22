@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+
 	"golang.org/x/exp/slog"
 
 	"github.com/golang-cz/skeleton/config"
