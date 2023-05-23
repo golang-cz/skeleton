@@ -8,7 +8,6 @@ import (
 	"os"
 	"time"
 
-
 	"golang.org/x/exp/slog"
 
 	"github.com/golang-cz/skeleton/config"
@@ -29,19 +28,27 @@ func main() {
 
 	// Read config.toml file
 	file, err := os.Open(*confFile)
-	ifErrLogFatal(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Load and parse config file
 	conf, err := config.NewFromReader(file)
-	ifErrLogFatal(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Setup application
 	err = core.SetupApp(conf, "Skeleton-API", version.VERSION)
-	ifErrLogFatal(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Create app & connect to DB, NATS etc.
 	app, err := api.New(conf)
-	ifErrLogFatal(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	defer app.Close()
 
@@ -72,10 +79,4 @@ func main() {
 	}
 
 	<-wait
-}
-
-func ifErrLogFatal(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
 }
