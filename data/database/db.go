@@ -3,6 +3,7 @@ package data
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/upper/db/v4"
 	"github.com/upper/db/v4/adapter/postgresql"
@@ -51,6 +52,8 @@ func NewDBSession(conf config.DBConfig) (*Database, error) {
 			err,
 		)
 	}
+
+	db.LC().SetLogger(log.Default())
 
 	DB = &Database{Session: dbSession}
 	return DB, nil
