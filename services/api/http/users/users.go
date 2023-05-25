@@ -2,7 +2,6 @@ package httpUsers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -23,7 +22,8 @@ func getUsers(w http.ResponseWriter, r *http.Request) {
 	dbsess := data.DB.Session
 	err := dbsess.SQL().SelectFrom("users").All(&users)
 	if err != nil {
-		fmt.Printf("User from DB\n")
+		http.Error(w, http.StatusText(500), 500)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
