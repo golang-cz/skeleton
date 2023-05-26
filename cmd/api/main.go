@@ -50,9 +50,19 @@ func main() {
 		log.Fatal(err)
 	}
 
+	defer app.Close()
+
+	slog.Info(
+		fmt.Sprintf(
+			"running application in %s environment version %s",
+			api.App.Config.Environment.String(),
+			version.VERSION,
+		),
+	)
+
 	srv := &http.Server{
-		Addr:              app.Config.Port,
-		Handler:           rest.Router(app),
+		Addr:              api.App.Config.Port,
+		Handler:           rest.Router(),
 		IdleTimeout:       60 * time.Second, // idle connections
 		ReadHeaderTimeout: 10 * time.Second, // request header
 		ReadTimeout:       5 * time.Minute,  // request body
@@ -62,17 +72,7 @@ func main() {
 
 	wait, _ := graceful.ShutdownHTTPServer(srv, time.Minute)
 
-	defer app.Close()
-
-	slog.Info(
-		fmt.Sprintf(
-			"running application in %s environment version %s",
-			app.Config.Environment.String(),
-			version.VERSION,
-		),
-	)
-
-	slog.Info(fmt.Sprintf("API serving at %v", app.Config.Port))
+	slog.Info(fmt.Sprintf("API serving at %v", api.App.Config.Port))
 
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatal(err)
