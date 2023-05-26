@@ -1,4 +1,4 @@
-package httpUsers
+package users
 
 import (
 	"encoding/json"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/golang-cz/skeleton/data/database"
+	data "github.com/golang-cz/skeleton/data/database"
 )
 
 func Router() http.Handler {

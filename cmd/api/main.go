@@ -15,7 +15,7 @@ import (
 	"github.com/golang-cz/skeleton/pkg/graceful"
 	"github.com/golang-cz/skeleton/pkg/version"
 	"github.com/golang-cz/skeleton/services/api"
-	apiHttp "github.com/golang-cz/skeleton/services/api/http"
+	"github.com/golang-cz/skeleton/services/api/rest"
 )
 
 var (
@@ -62,7 +62,7 @@ func main() {
 
 	srv := &http.Server{
 		Addr:              api.App.Config.Port,
-		Handler:           apiHttp.Router(),
+		Handler:           rest.Router(),
 		IdleTimeout:       60 * time.Second, // idle connections
 		ReadHeaderTimeout: 10 * time.Second, // request header
 		ReadTimeout:       5 * time.Minute,  // request body

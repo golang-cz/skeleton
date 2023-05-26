@@ -1,4 +1,4 @@
-package httpUser
+package user
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/upper/db/v4"
 
-	"github.com/golang-cz/skeleton/data/database"
+	data "github.com/golang-cz/skeleton/data/database"
 )
 
 func Router() http.Handler {
