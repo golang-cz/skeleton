@@ -7,19 +7,26 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	data "github.com/golang-cz/skeleton/data/database"
+	"github.com/golang-cz/skeleton/services/api"
 )
 
-func Router() http.Handler {
+type Api struct {
+	App *api.API
+}
+
+func Router(api *api.API) http.Handler {
+	a := &Api{App: api}
+
 	r := chi.NewRouter()
 
-	r.Get("/", getUsers)
+	r.Get("/", a.getUsers)
 
 	return r
 }
 
-func getUsers(w http.ResponseWriter, r *http.Request) {
+func (a *Api) getUsers(w http.ResponseWriter, r *http.Request) {
 	var users []data.UserStore
-	dbsess := data.DB.Session
+	dbsess := a.App.DbSession.Session
 	err := dbsess.SQL().SelectFrom("users").All(&users)
 	if err != nil {
 		http.Error(w, http.StatusText(500), 500)

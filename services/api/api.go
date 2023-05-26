@@ -2,29 +2,25 @@ package api
 
 import (
 	"fmt"
-	"github.com/golang-cz/skeleton/pkg/events"
-	"github.com/golang-cz/skeleton/pkg/graceful"
-	"github.com/golang-cz/skeleton/pkg/nats"
-	"github.com/golang-cz/skeleton/pkg/slogger"
-	"github.com/golang-cz/skeleton/pkg/status"
+
 	"golang.org/x/exp/slog"
 
 	"github.com/golang-cz/skeleton/config"
-	"github.com/golang-cz/skeleton/data/database"
+	data "github.com/golang-cz/skeleton/data/database"
 )
-
-var App *API
 
 type API struct {
 	Config    *config.AppConfig
 	DbSession *data.Database
 }
 
-func New(conf *config.AppConfig, shutdown graceful.TriggerShutdownFn) (*API, error) {
+func New(conf *config.AppConfig) (*API, error) {
 	// Database
-	if _, err := data.NewDBSession(conf.DB); err != nil {
+	database, err := data.NewDBSession(conf.DB)
+	if err != nil {
 		return nil, fmt.Errorf("failed to connect to main DB: %w", err)
 	}
+	app := &API{Config: conf, DbSession: database}
 
 	//NATS
 	if _, err := nats.Connect("api", conf.NATS, shutdown); err != nil {
@@ -37,14 +33,12 @@ func New(conf *config.AppConfig, shutdown graceful.TriggerShutdownFn) (*API, err
 		slog.Error(slogger.ErrorCause(err).Error())
 	}
 
-	App = &API{Config: conf, DbSession: data.DB}
-
-	return App, nil
+	return app, nil
 }
 
 func (app *API) Close() {
 	slog.Info("API: closing NATS & DB connections..")
 
-	App.DbSession.Session.Close()
+	app.DbSession.Session.Close()
 	nats.Close()
 }

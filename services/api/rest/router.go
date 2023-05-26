@@ -13,13 +13,14 @@ import (
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/pkg/alert"
 	"github.com/golang-cz/skeleton/pkg/slogger"
+	"github.com/golang-cz/skeleton/services/api"
 	"github.com/golang-cz/skeleton/services/api/rest/pprof"
 	"github.com/golang-cz/skeleton/services/api/rest/status"
 	"github.com/golang-cz/skeleton/services/api/rest/user"
 	"github.com/golang-cz/skeleton/services/api/rest/users"
 )
 
-func Router() chi.Router {
+func Router(app *api.API) chi.Router {
 	r := chi.NewRouter()
 
 	r.Use(middleware.NoCache)
@@ -46,9 +47,9 @@ func Router() chi.Router {
 	r.Mount("/", pprof.Router())
 
 	r.Route("/api", func(r chi.Router) {
-		r.Get("/status", status.StatusPage)
-		r.Mount("/user", user.Router())
-		r.Mount("/users", users.Router())
+		r.Get("/status", status.StatusPage(app))
+		r.Mount("/user", user.Router(app))
+		r.Mount("/users", users.Router(app))
 	})
 
 	return r
