@@ -1,4 +1,4 @@
-package httpStatus
+package status
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 
 	"github.com/upper/db/v4"
 
-	"github.com/golang-cz/skeleton/data/database"
+	data "github.com/golang-cz/skeleton/data/database"
 	"github.com/golang-cz/skeleton/pkg/status"
 	"github.com/golang-cz/skeleton/pkg/ws"
 )

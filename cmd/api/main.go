@@ -15,7 +15,7 @@ import (
 	"github.com/golang-cz/skeleton/pkg/graceful"
 	"github.com/golang-cz/skeleton/pkg/version"
 	"github.com/golang-cz/skeleton/services/api"
-	apiHttp "github.com/golang-cz/skeleton/services/api/http"
+	"github.com/golang-cz/skeleton/services/api/rest"
 )
 
 var (
@@ -44,20 +44,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	srv := &http.Server{
-		Addr:              conf.Port,
-		Handler:           apiHttp.Router(),
-		IdleTimeout:       60 * time.Second, // idle connections
-		ReadHeaderTimeout: 10 * time.Second, // request header
-		ReadTimeout:       5 * time.Minute,  // request body
-		WriteTimeout:      5 * time.Minute,  // response body
-		MaxHeaderBytes:    1 << 20,          // 1 MB
-	}
-
-	wait, shutdown := graceful.ShutdownHTTPServer(srv, time.Minute)
-
 	// Create app & connect to DB, NATS etc.
-	app, err := api.New(conf, shutdown)
+	app, err := api.New(conf)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -67,12 +55,24 @@ func main() {
 	slog.Info(
 		fmt.Sprintf(
 			"running application in %s environment version %s",
-			api.App.Config.Environment.String(),
+			app.Config.Environment.String(),
 			version.VERSION,
 		),
 	)
 
-	slog.Info(fmt.Sprintf("API serving at %v", api.App.Config.Port))
+	srv := &http.Server{
+		Addr:              app.Config.Port,
+		Handler:           rest.Router(app),
+		IdleTimeout:       60 * time.Second, // idle connections
+		ReadHeaderTimeout: 10 * time.Second, // request header
+		ReadTimeout:       5 * time.Minute,  // request body
+		WriteTimeout:      5 * time.Minute,  // response body
+		MaxHeaderBytes:    1 << 20,          // 1 MB
+	}
+
+	wait, _ := graceful.ShutdownHTTPServer(srv, time.Minute)
+
+	slog.Info(fmt.Sprintf("API serving at %v", app.Config.Port))
 
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatal(err)
