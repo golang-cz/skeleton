@@ -12,15 +12,20 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-type ShutdownFn func(context.Context) error
-type TriggerShutdownFn func()
+type (
+	ShutdownFn        func(context.Context) error
+	TriggerShutdownFn func()
+)
 
 // Shutdown calls the given shutdown() function when SIGINT, SIGTERM, SIGHUP or SIGQUIT
 // signal is received by the program or when the returned triggerShutdown() function is called.
 //
 // Returns wait channel that blocks until shutdown() finishes.
 // Returns shutdown() function that can be used to trigger the graceful shutdown from within the app.
-func Shutdown(shutdown ShutdownFn, timeout time.Duration) (wait chan struct{}, triggerShutdown TriggerShutdownFn) {
+func Shutdown(
+	shutdown ShutdownFn,
+	timeout time.Duration,
+) (wait chan struct{}, triggerShutdown TriggerShutdownFn) {
 	sig := make(chan os.Signal, 1)
 
 	wait = make(chan struct{})
@@ -40,7 +45,7 @@ func Shutdown(shutdown ShutdownFn, timeout time.Duration) (wait chan struct{}, t
 		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
 
-		slog.Info("graceful: shutdown(): shutting down...")
+		slog.Info("graceful: shutdown: shutting down...")
 
 		if err := shutdown(ctx); err != nil {
 			slog.ErrorCtx(ctx, fmt.Sprintf("graceful: failed to shutdown(): %v", err))
@@ -60,6 +65,9 @@ func Shutdown(shutdown ShutdownFn, timeout time.Duration) (wait chan struct{}, t
 //
 // Returns wait channel that blocks until all active HTTP connections are finished.
 // Returns shutdown() function that can be used to trigger the graceful shutdown from within the app.
-func ShutdownHTTPServer(srv *http.Server, timeout time.Duration) (wait chan struct{}, shutdown TriggerShutdownFn) {
+func ShutdownHTTPServer(
+	srv *http.Server,
+	timeout time.Duration,
+) (wait chan struct{}, shutdown TriggerShutdownFn) {
 	return Shutdown(srv.Shutdown, timeout)
 }

@@ -1,0 +1,21 @@
+version: "3.8"
+services:
+  postgresql:
+    image: postgres:15.3
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - /data:/var/lib/postgresql/data
+    restart: always
+  skeleton:
+    build: .
+    container_name: skeleton
+    depends_on:
+      - postgresql
+    ports:
+      - "8877:8877"
+    network_mode: host
+    restart: always

@@ -3,21 +3,23 @@ package data
 import (
 	"errors"
 	"fmt"
+	"log"
 
-	"github.com/golang-cz/skeleton/config"
 	"github.com/upper/db/v4"
 	"github.com/upper/db/v4/adapter/postgresql"
+
+	"github.com/golang-cz/skeleton/config"
 )
 
-var (
-	DB *Database
-)
+var DB *Database
 
 type Database struct {
 	Session db.Session
+
+	User UserStore
 }
 
-func NewDBSession(conf config.DBConfig) (*db.Session, error) {
+func NewDBSession(conf config.DBConfig) (*Database, error) {
 	if conf.Host == "" {
 		return nil, errors.New("failed to connect to DB: no host")
 	}
@@ -40,14 +42,19 @@ func NewDBSession(conf config.DBConfig) (*db.Session, error) {
 		connURL.Options["connect_timeout"] = fmt.Sprintf("%d", conf.ConnectionTimeout)
 	}
 
-	DB, err := postgresql.Open(connURL)
+	dbSession, err := postgresql.Open(connURL)
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to %v@%v/%v: %w", conf.Username, conf.Host, conf.Database, err)
+		return nil, fmt.Errorf(
+			"failed to connect to %v@%v/%v: %w",
+			conf.Username,
+			conf.Host,
+			conf.Database,
+			err,
+		)
 	}
 
-	return &DB, nil
-}
+	db.LC().SetLogger(log.Default())
 
-func Close() {
-	DB.Session.Close()
+	DB = &Database{Session: dbSession}
+	return DB, nil
 }
