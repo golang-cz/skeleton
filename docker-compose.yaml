@@ -23,5 +23,5 @@ services:
       - nats
     ports:
       - "8877:8877"
-#    network_mode: host
+    network_mode: host
     restart: always
