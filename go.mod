@@ -12,6 +12,7 @@ require (
 	github.com/pressly/goose/v3 v3.11.2
 	github.com/rs/cors v1.9.0
 	github.com/upper/db/v4 v4.6.0
+	github.com/nats-io/nats.go v1.26.0
 	golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53
 )
 
@@ -24,6 +25,10 @@ require (
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgtype v1.10.0 // indirect
 	github.com/jackc/pgx/v4 v4.15.0 // indirect
+	github.com/klauspost/compress v1.16.5 // indirect
+	github.com/nats-io/nats.go v1.26.0 // indirect
+	github.com/nats-io/nkeys v0.4.4 // indirect
+	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/segmentio/fasthash v1.0.3 // indirect
 	golang.org/x/crypto v0.8.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
