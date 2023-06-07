@@ -1,4 +1,4 @@
-package httpPprof
+package pprof
 
 import (
 	"net/http"

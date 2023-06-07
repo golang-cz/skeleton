@@ -1,4 +1,4 @@
-package httpUser
+package user
 
 import (
 	"context"
@@ -9,24 +9,30 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/upper/db/v4"
 
-	"github.com/golang-cz/skeleton/data/database"
+	data "github.com/golang-cz/skeleton/data/database"
+	"github.com/golang-cz/skeleton/services/api"
 )
 
-func Router() http.Handler {
+type Api struct {
+	App *api.API
+}
+
+func Router(api *api.API) http.Handler {
+	a := &Api{App: api}
 	r := chi.NewRouter()
 
 	r.Route("/{uuid}", func(r chi.Router) {
-		r.Use(UserCtx)
+		r.Use(a.UserCtx)
 		r.Get("/detail", getUser)
 	})
 
 	return r
 }
 
-func UserCtx(next http.Handler) http.Handler {
+func (a *Api) UserCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userID := chi.URLParam(r, "uuid")
-		user, err := dbGetUser(userID)
+		user, err := a.dbGetUser(userID)
 		if err != nil {
 			http.Error(w, http.StatusText(418), 418)
 			return
@@ -35,6 +41,17 @@ func UserCtx(next http.Handler) http.Handler {
 		ctx := context.WithValue(r.Context(), "user", user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+func (a *Api) dbGetUser(userID string) (userstore data.UserStore, err error) {
+	var user data.UserStore
+	dbsess := a.App.DbSession.Session
+
+	err = dbsess.Get(&user, db.Cond{"id": userID})
+	if err != nil {
+		return user, fmt.Errorf("user from db: %w", err)
+	}
+	return user, nil
 }
 
 func getUser(w http.ResponseWriter, r *http.Request) {
@@ -48,15 +65,4 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(user)
-}
-
-func dbGetUser(userID string) (userstore data.UserStore, err error) {
-	var user data.UserStore
-	dbsess := data.DB.Session
-
-	err = dbsess.Get(&user, db.Cond{"id": userID})
-	if err != nil {
-		return user, fmt.Errorf("user from db: %w", err)
-	}
-	return user, nil
 }

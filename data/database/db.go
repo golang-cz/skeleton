@@ -11,8 +11,6 @@ import (
 	"github.com/golang-cz/skeleton/config"
 )
 
-var DB *Database
-
 type Database struct {
 	Session db.Session
 
@@ -55,6 +53,5 @@ func NewDBSession(conf config.DBConfig) (*Database, error) {
 
 	db.LC().SetLogger(log.Default())
 
-	DB = &Database{Session: dbSession}
-	return DB, nil
+	return &Database{Session: dbSession}, nil
 }

@@ -1,4 +1,4 @@
-package apiHttp
+package rest
 
 import (
 	"errors"
@@ -13,13 +13,14 @@ import (
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/pkg/alert"
 	"github.com/golang-cz/skeleton/pkg/slogger"
-	"github.com/golang-cz/skeleton/services/api/http/debug"
-	"github.com/golang-cz/skeleton/services/api/http/status"
-	"github.com/golang-cz/skeleton/services/api/http/user"
-	"github.com/golang-cz/skeleton/services/api/http/users"
+	"github.com/golang-cz/skeleton/services/api"
+	"github.com/golang-cz/skeleton/services/api/rest/pprof"
+	"github.com/golang-cz/skeleton/services/api/rest/status"
+	"github.com/golang-cz/skeleton/services/api/rest/user"
+	"github.com/golang-cz/skeleton/services/api/rest/users"
 )
 
-func Router() chi.Router {
+func Router(app *api.API) chi.Router {
 	r := chi.NewRouter()
 
 	r.Use(middleware.NoCache)
@@ -43,12 +44,12 @@ func Router() chi.Router {
 	r.Get("/robots.txt", robots)
 	r.Get("/sentry", sentry)
 	r.Get("/favicon.ico", favicon)
-	r.Mount("/", httpPprof.Router())
+	r.Mount("/", pprof.Router())
 
 	r.Route("/api", func(r chi.Router) {
-		r.Get("/status", httpStatus.StatusPage)
-		r.Mount("/user", httpUser.Router())
-		r.Mount("/users", httpUsers.Router())
+		r.Get("/status", status.StatusPage(app))
+		r.Mount("/user", user.Router(app))
+		r.Mount("/users", users.Router(app))
 	})
 
 	return r

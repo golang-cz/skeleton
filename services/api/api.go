@@ -6,10 +6,8 @@ import (
 	"golang.org/x/exp/slog"
 
 	"github.com/golang-cz/skeleton/config"
-	"github.com/golang-cz/skeleton/data/database"
+	data "github.com/golang-cz/skeleton/data/database"
 )
-
-var App *API
 
 type API struct {
 	Config    *config.AppConfig
@@ -18,16 +16,17 @@ type API struct {
 
 func New(conf *config.AppConfig) (*API, error) {
 	// Database
-	if _, err := data.NewDBSession(conf.DB); err != nil {
+	database, err := data.NewDBSession(conf.DB)
+	if err != nil {
 		return nil, fmt.Errorf("failed to connect to main DB: %w", err)
 	}
-	App = &API{Config: conf, DbSession: data.DB}
+	app := &API{Config: conf, DbSession: database}
 
-	return App, nil
+	return app, nil
 }
 
 func (app *API) Close() {
 	slog.Info("API: closing NATS & DB connections..")
 
-	App.DbSession.Session.Close()
+	app.DbSession.Session.Close()
 }
