@@ -21,5 +21,9 @@ disable_handler_success_log = false
     dir = "./cmd/goose/migrations"
     driver = "postgres"
 
+[nats]
+    server = "nats://0.0.0.0:4222"
+    cluster = "testing"
+
 [sentry]
     dsn = "" # "https://123@abc.ingest.sentry.io/123"

@@ -32,6 +32,12 @@ var (
 				Subject: "api",
 			},
 		},
+		{
+			Key: "nats-test",
+			Probe: &status.HealthProbe{
+				Subject: "nats-test",
+			},
+		},
 	}
 
 	uptimeProbes = []probe{

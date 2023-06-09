@@ -17,6 +17,7 @@ type AppConfig struct {
 	Port                     string      `toml:"bind_address"`
 	DB                       DBConfig    `toml:"db"`
 	Goose                    GooseConfig `toml:"goose"`
+	NATS                     NATSConfig  `toml:"nats"`
 	Sentry                   Sentry      `toml:"sentry"`
 	Environment              Environment `toml:"environment"`
 	DisableHandlerSuccessLog bool        `toml:"disable_handler_success_log"`
@@ -49,6 +50,11 @@ type DBConfig struct {
 type GooseConfig struct {
 	Dir    string `toml:"dir"`
 	Driver string `toml:"driver"`
+}
+
+type NATSConfig struct {
+	Server  string `toml:"server"`
+	Cluster string `toml:"cluster"`
 }
 
 func NewFromReader(content io.Reader) (*AppConfig, error) {
