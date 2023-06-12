@@ -3,6 +3,7 @@ package httpStatus
 import (
 	"context"
 	"fmt"
+	"github.com/golang-cz/skeleton/pkg/events"
 	"net/http"
 	"strings"
 	"sync"
@@ -27,15 +28,15 @@ type result struct {
 var (
 	serviceProbes = []probe{
 		{
-			Key: "Api",
+			Key: "api",
 			Probe: &status.HealthProbe{
-				Subject: "api",
+				Subject: events.EvAPIHealth,
 			},
 		},
 		{
-			Key: "nats-test",
+			Key: "scheduler",
 			Probe: &status.HealthProbe{
-				Subject: "nats-test",
+				Subject: events.EvSchedulerHealth,
 			},
 		},
 	}
