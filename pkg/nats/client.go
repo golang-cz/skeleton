@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/pkg/graceful"
+	"github.com/golang-cz/skeleton/pkg/lg"
 	"github.com/rs/zerolog/log"
 	"math/rand"
 	"net/url"
@@ -74,7 +75,8 @@ func New(service string, conf config.NATSConfig, shutdown graceful.TriggerShutdo
 		time.Sleep(time.Second)
 	}
 	if err != nil {
-		log.Fatal().Err(fmt.Errorf("failed to connect to NATS: %w", err)).Msg(ErrorCause(err).Error())
+		err = fmt.Errorf("failed to connect to NATS: %w", err)
+		log.Fatal().Err(err).Msg(lg.ErrorCause(err).Error())
 	}
 
 	stanOpts := []stan.Option{
@@ -102,7 +104,8 @@ func New(service string, conf config.NATSConfig, shutdown graceful.TriggerShutdo
 	}
 
 	if err != nil {
-		log.Fatal().Err(fmt.Errorf("failed to connect to NATS-Streaming: %w", err)).Msg(ErrorCause(err).Error())
+		err = fmt.Errorf("failed to connect to NATS-Streaming: %w", err)
+		log.Fatal().Err(err).Msg(lg.ErrorCause(err).Error())
 	}
 
 	return client, nil
@@ -148,12 +151,12 @@ func (c *Client) Publish(subj string, v interface{}) error {
 	// Log alert if message is trying to be published when NATS client is disconnected
 	if !c.NATSConn.IsConnected() {
 		err := fmt.Errorf("%s: trying to publish message to subject %q but NATS client is disconnected", c.Service, subj)
-		log.Error().Err(err).Msg(ErrorCause(err).Error())
+		log.Error().Err(err).Msg(lg.ErrorCause(err).Error())
 	}
 	ackHandler := func(ackedNuid string, err error) {
 		if err != nil {
 			err = fmt.Errorf("%s: failed to acknowledge message %q of subject %q: %w", c.Service, ackedNuid, subj, err)
-			log.Error().Err(err).Msg(ErrorCause(err).Error())
+			log.Error().Err(err).Msg(lg.ErrorCause(err).Error())
 		}
 	}
 	var err error
@@ -227,7 +230,7 @@ func (c *Client) PublishCoreNATS(subj string, v interface{}) error {
 	// Log alert if message is trying to be published when NATS client is disconnected
 	if !c.NATSConn.IsConnected() {
 		err := fmt.Errorf("Trying to publish message to subject (%s) but NATS client is disconnected - payload: %+v", subj, v)
-		log.Error().Err(err).Msg(ErrorCause(err).Error())
+		log.Error().Err(err).Msg(lg.ErrorCause(err).Error())
 	}
 
 	var err error
@@ -295,12 +298,4 @@ func argInfo(cb interface{}) (reflect.Type, int, error) {
 		return nil, numArgs, fmt.Errorf("callback handler needs to have 2 arguments")
 	}
 	return cbType.In(numArgs - 1), numArgs, nil
-}
-
-func ErrorCause(err error) error {
-	var cause error
-	for e := err; e != nil; e = errors.Unwrap(e) {
-		cause = e
-	}
-	return cause
 }

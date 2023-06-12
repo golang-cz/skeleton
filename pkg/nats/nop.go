@@ -3,6 +3,7 @@ package nats
 import (
 	"errors"
 	"fmt"
+	"github.com/golang-cz/skeleton/pkg/lg"
 	"github.com/rs/zerolog/log"
 
 	"github.com/nats-io/nats.go"
@@ -27,7 +28,7 @@ func (c *nopClient) Close() { return }
 func (c *nopClient) Publish(subj string, v interface{}) error {
 	err := fmt.Errorf("Trying to publish message to subject (%s) but NATS client is disconnected - payload: %+v", subj, v)
 	if c.Alert {
-		log.Error().Err(err).Msg(ErrorCause(err).Error())
+		log.Error().Err(err).Msg(lg.ErrorCause(err).Error())
 	} else {
 		// Just log a warning to indicate that some functionality depends on NATS but the client is not connected when running in development mode
 		log.Warn().Msgf("%v", err)
@@ -42,7 +43,7 @@ func (c *nopClient) QueueSubscribe(subj string, cb interface{}) error { return n
 func (c *nopClient) PublishCoreNATS(subj string, v interface{}) error {
 	err := fmt.Errorf("Trying to publish message to subject (%s) but NATS client is disconnected - payload: %+v", subj, v)
 	if c.Alert {
-		log.Error().Err(err).Msg(ErrorCause(err).Error())
+		log.Error().Err(err).Msg(lg.ErrorCause(err).Error())
 	} else {
 		// Just log a warning to indicate that some functionality depends on NATS but the client is not connected when running in development mode
 		log.Warn().Msgf("%v", err)

@@ -10,18 +10,19 @@ services:
     volumes:
       - /data:/var/lib/postgresql/data
     restart: always
-  nats-server:
-      image: nats:2.9
+  nats-streaming:
+      image: nats-streaming
       restart: always
       ports:
-        - "4222:4222"
+        - 4222:4222
+      command: -cid=dev
   skeleton:
     build: .
     container_name: skeleton
     depends_on:
       - postgresql
-      - nats-server
+      - nats-streaming
     ports:
       - "8877:8877"
-#  network_mode: host
+    network_mode: host
     restart: always

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/golang-cz/skeleton/pkg/lg"
 	"github.com/golang-cz/skeleton/pkg/nats"
 	"github.com/rs/zerolog/log"
 	"strings"
@@ -38,7 +39,8 @@ func (p *HealthProbe) Run(_ context.Context) Result {
 
 	defer func() {
 		if err := sub.Unsubscribe(); err != nil {
-			log.Error().Err(fmt.Errorf("failed to  unsubscribe from inbox: %w", err)).Msg(nats.ErrorCause(fmt.Errorf("failed to  unsubscribe from inbox: %w", err)).Error())
+			err = fmt.Errorf("failed to  unsubscribe from inbox: %w", err)
+			log.Error().Err(err).Msg(lg.ErrorCause(err).Error())
 		}
 	}()
 

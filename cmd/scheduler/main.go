@@ -3,19 +3,20 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/golang-cz/skeleton/config"
+	"github.com/golang-cz/skeleton/internal/core"
+	"github.com/golang-cz/skeleton/pkg/events"
+	"github.com/golang-cz/skeleton/pkg/graceful"
+	"github.com/golang-cz/skeleton/pkg/lg"
+	"github.com/golang-cz/skeleton/pkg/nats"
+	"github.com/golang-cz/skeleton/pkg/status"
+	"github.com/golang-cz/skeleton/pkg/version"
+	apiHttp "github.com/golang-cz/skeleton/services/api/http"
+	zerolog "github.com/rs/zerolog/log"
 	"log"
 	"net/http"
 	"os"
 	"time"
-
-	"golang.org/x/exp/slog"
-
-	"github.com/golang-cz/skeleton/config"
-	"github.com/golang-cz/skeleton/internal/core"
-	"github.com/golang-cz/skeleton/pkg/graceful"
-	"github.com/golang-cz/skeleton/pkg/version"
-	"github.com/golang-cz/skeleton/services/api"
-	apiHttp "github.com/golang-cz/skeleton/services/api/http"
 )
 
 var (
@@ -56,26 +57,15 @@ func main() {
 
 	wait, shutdown := graceful.ShutdownHTTPServer(srv, time.Minute)
 
-	// Create app & connect to DB, NATS etc.
-	app, err := api.New(conf, shutdown)
-	if err != nil {
-		log.Fatal(err)
+	//NATS + Streaming
+	if _, err := nats.Connect("scheduler", conf.NATS, shutdown); err != nil {
+		err = fmt.Errorf("failed to connect to NATS server: %w", err)
+		zerolog.Fatal().Err(err).Msg(lg.ErrorCause(err).Error())
 	}
 
-	defer app.Close()
-
-	slog.Info(
-		fmt.Sprintf(
-			"running application in %s environment version %s",
-			api.App.Config.Environment.String(),
-			version.VERSION,
-		),
-	)
-
-	slog.Info(fmt.Sprintf("API serving at %v", api.App.Config.Port))
-
-	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Fatal(err)
+	if err := status.HealthSubscriber(events.EvSchedulerHealth); err != nil {
+		err = fmt.Errorf("failed enable health subscribe: %w", err)
+		zerolog.Error().Err(err).Msg(lg.ErrorCause(err).Error())
 	}
 
 	<-wait

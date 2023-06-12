@@ -2,12 +2,25 @@ package status
 
 import (
 	"fmt"
+	"github.com/golang-cz/skeleton/pkg/nats"
 	"github.com/golang-cz/skeleton/pkg/version"
 	"os"
 	"runtime"
 )
 
 const megaByte = 1 << (10 * 2)
+
+func HealthSubscriber(subject string) error {
+	if err := nats.SubscribeCoreNATS(subject, func(subject string, req *ServiceStats) error {
+		if err := nats.PublishCoreNATS(req.ReplyInbox, GetServiceStats()); err != nil {
+			return fmt.Errorf("failed to publish healthz reply: %w", err)
+		}
+		return nil
+	}); err != nil {
+		return fmt.Errorf("failed to subscribe to nats subject:%s: %w", subject, err)
+	}
+	return nil
+}
 
 func GetServiceStats() *ServiceStats {
 	stats := &ServiceStats{
