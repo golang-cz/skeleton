@@ -44,8 +44,20 @@ func main() {
 		log.Fatal(err)
 	}
 
+	srv := &http.Server{
+		Addr:              app.Config.Port,
+		Handler:           rest.Router(),
+		IdleTimeout:       60 * time.Second, // idle connections
+		ReadHeaderTimeout: 10 * time.Second, // request header
+		ReadTimeout:       5 * time.Minute,  // request body
+		WriteTimeout:      5 * time.Minute,  // response body
+		MaxHeaderBytes:    1 << 20,          // 1 MB
+	}
+
+	wait, shutdown := graceful.ShutdownHTTPServer(srv, time.Minute)
+
 	// Create app & connect to DB, NATS etc.
-	app, err := api.New(conf)
+	app, err := api.New(conf, shutdown)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -60,19 +72,7 @@ func main() {
 		),
 	)
 
-	srv := &http.Server{
-		Addr:              app.Config.Port,
-		Handler:           rest.Router(app),
-		IdleTimeout:       60 * time.Second, // idle connections
-		ReadHeaderTimeout: 10 * time.Second, // request header
-		ReadTimeout:       5 * time.Minute,  // request body
-		WriteTimeout:      5 * time.Minute,  // response body
-		MaxHeaderBytes:    1 << 20,          // 1 MB
-	}
-
-	wait, _ := graceful.ShutdownHTTPServer(srv, time.Minute)
-
-	slog.Info(fmt.Sprintf("API serving at %v", app.Config.Port))
+	slog.Info(fmt.Sprintf("API serving at %v", api.Config.Port))
 
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatal(err)
