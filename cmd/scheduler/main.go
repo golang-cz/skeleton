@@ -55,10 +55,10 @@ func main() {
 		MaxHeaderBytes:    1 << 20,          // 1 MB
 	}
 
-	wait, shutdown := graceful.ShutdownHTTPServer(srv, time.Minute)
+	wait, _ := graceful.ShutdownHTTPServer(srv, time.Minute)
 
 	//NATS + Streaming
-	if _, err := nats.Connect("scheduler", conf.NATS, shutdown); err != nil {
+	if _, err := nats.Connect("scheduler", conf.NATS); err != nil {
 		err = fmt.Errorf("failed to connect to NATS server: %w", err)
 		zerolog.Fatal().Err(err).Msg(lg.ErrorCause(err).Error())
 	}

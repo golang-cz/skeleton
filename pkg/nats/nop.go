@@ -7,14 +7,13 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/nats-io/nats.go"
-	"github.com/nats-io/stan.go"
 )
 
 type nopClient struct {
 	Alert bool
 }
 
-func (c *nopClient) Conn() stan.Conn { return nil }
+func (c *nopClient) Conn() *nats.Conn { return nil }
 
 func (c *nopClient) Ping() error { return errors.New("nats: nop") }
 

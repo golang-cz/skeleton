@@ -29,7 +29,7 @@ func (p *HealthProbe) Run(_ context.Context) Result {
 	}
 
 	// sets up a sync subscriber so all service healthz replies can be read sequentially
-	sub, err := nats.Conn().NatsConn().SubscribeSync(replyInbox)
+	sub, err := nats.Conn().SubscribeSync(replyInbox)
 	if err != nil {
 		return Result{
 			Status: ProbeStatusError,

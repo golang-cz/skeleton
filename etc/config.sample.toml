@@ -23,7 +23,6 @@ disable_handler_success_log = false
 
 [nats]
     server = "nats://localhost:4222"
-    cluster = "dev"
 
 [sentry]
     dsn = "" # "https://123@abc.ingest.sentry.io/123"

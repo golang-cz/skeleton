@@ -2,9 +2,7 @@ package nats
 
 import (
 	"github.com/golang-cz/skeleton/config"
-	"github.com/golang-cz/skeleton/pkg/graceful"
 	"github.com/nats-io/nats.go"
-	"github.com/nats-io/stan.go"
 )
 
 var (
@@ -12,21 +10,18 @@ var (
 )
 
 type NATSClient interface {
-	Conn() stan.Conn
+	Conn() *nats.Conn
 	Ping() error
 	Stats() nats.Statistics
 	Unsubscribe()
 	Close()
 
-	// STAN - code name for NATS streaming, it is NATS spelled backwards
 	// NATS streaming has all the core NATS features, plus;
 	// -Log based persistence
 	// -At-Least-Once Delivery model, giving reliable message delivery
 	// -Rate matched on a per subscription basis
 	// -Replay/Restart
 	// -Last Value Semantics
-
-	// When strong message guarantees are required, use STAN, if not, use plain NATS
 
 	// Publishes a message to a NATS streaming subject
 	Publish(subj string, v interface{}) error
@@ -61,8 +56,8 @@ var messagingModels = []string{
 	"pubsub", "queue",
 }
 
-func Connect(service string, conf config.NATSConfig, shutdown graceful.TriggerShutdownFn) (*Client, error) {
-	client, err := New(service, conf, shutdown)
+func Connect(service string, conf config.NATSConfig) (*Client, error) {
+	client, err := New(service, conf)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +67,7 @@ func Connect(service string, conf config.NATSConfig, shutdown graceful.TriggerSh
 	return client, nil
 }
 
-func Conn() stan.Conn {
+func Conn() *nats.Conn {
 	return DefaultClient.Conn()
 }
 

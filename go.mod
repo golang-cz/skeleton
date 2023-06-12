@@ -10,8 +10,6 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/lib/pq v1.10.9
 	github.com/nats-io/nats.go v1.25.0
-	github.com/nats-io/nuid v1.0.1
-	github.com/nats-io/stan.go v0.10.4
 	github.com/pressly/goose/v3 v3.11.2
 	github.com/rs/cors v1.9.0
 	github.com/rs/zerolog v1.15.0
@@ -20,7 +18,6 @@ require (
 )
 
 require (
-	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.11.0 // indirect
@@ -31,8 +28,8 @@ require (
 	github.com/jackc/pgtype v1.10.0 // indirect
 	github.com/jackc/pgx/v4 v4.15.0 // indirect
 	github.com/nats-io/nats-server/v2 v2.9.17 // indirect
-	github.com/nats-io/nats-streaming-server v0.25.4 // indirect
 	github.com/nats-io/nkeys v0.4.4 // indirect
+	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/segmentio/fasthash v1.0.3 // indirect
 	golang.org/x/crypto v0.8.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
