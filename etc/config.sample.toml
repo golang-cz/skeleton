@@ -22,8 +22,8 @@ disable_handler_success_log = false
     driver = "postgres"
 
 [nats]
-    server = "nats://0.0.0.0:4222"
-    cluster = "testing"
+    server = "nats://localhost:4222"
+    cluster = "dev"
 
 [sentry]
     dsn = "" # "https://123@abc.ingest.sentry.io/123"
