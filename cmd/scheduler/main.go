@@ -7,12 +7,12 @@ import (
 	"github.com/golang-cz/skeleton/internal/core"
 	"github.com/golang-cz/skeleton/pkg/events"
 	"github.com/golang-cz/skeleton/pkg/graceful"
-	"github.com/golang-cz/skeleton/pkg/lg"
 	"github.com/golang-cz/skeleton/pkg/nats"
+	"github.com/golang-cz/skeleton/pkg/slogger"
 	"github.com/golang-cz/skeleton/pkg/status"
 	"github.com/golang-cz/skeleton/pkg/version"
 	apiHttp "github.com/golang-cz/skeleton/services/api/http"
-	zerolog "github.com/rs/zerolog/log"
+
 	"log"
 	"net/http"
 	"os"
@@ -55,17 +55,17 @@ func main() {
 		MaxHeaderBytes:    1 << 20,          // 1 MB
 	}
 
-	wait, _ := graceful.ShutdownHTTPServer(srv, time.Minute)
+	wait, shutdown := graceful.ShutdownHTTPServer(srv, time.Minute)
 
-	//NATS + Streaming
-	if _, err := nats.Connect("scheduler", conf.NATS); err != nil {
+	//NATS
+	if _, err := nats.Connect("scheduler", conf.NATS, shutdown); err != nil {
 		err = fmt.Errorf("failed to connect to NATS server: %w", err)
-		zerolog.Fatal().Err(err).Msg(lg.ErrorCause(err).Error())
+		log.Fatal(slogger.ErrorCause(err).Error())
 	}
 
 	if err := status.HealthSubscriber(events.EvSchedulerHealth); err != nil {
 		err = fmt.Errorf("failed enable health subscribe: %w", err)
-		zerolog.Error().Err(err).Msg(lg.ErrorCause(err).Error())
+		log.Fatal(slogger.ErrorCause(err).Error())
 	}
 
 	<-wait

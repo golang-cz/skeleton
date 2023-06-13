@@ -5,8 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang-cz/skeleton/config"
-	"github.com/golang-cz/skeleton/pkg/lg"
-	"github.com/rs/zerolog/log"
+	"github.com/golang-cz/skeleton/pkg/graceful"
+	"github.com/golang-cz/skeleton/pkg/slogger"
+	"golang.org/x/exp/slog"
 	"net/url"
 	"reflect"
 	"time"
@@ -24,7 +25,7 @@ type Client struct {
 	natsSubs []*nats.Subscription
 }
 
-func New(service string, conf config.NATSConfig) (*Client, error) {
+func New(service string, conf config.NATSConfig, shutdown graceful.TriggerShutdownFn) (*Client, error) {
 	opts := []nats.Option{
 		nats.Timeout(5 * time.Second),
 		nats.ReconnectWait(1 * time.Second),
@@ -32,15 +33,15 @@ func New(service string, conf config.NATSConfig) (*Client, error) {
 		nats.DisconnectHandler(func(nc *nats.Conn) {
 			// Only alert if connection wasn't previously closed
 			if !nc.IsClosed() {
-				// Note: nc.LastError() might be nil, don't wrap it
-				log.Error().Err(fmt.Errorf("%s: NATS client disconnected", service))
+				err := fmt.Errorf("%s: NATS client disconnected", service)
+				slog.Error(err.Error())
 			}
 		}),
 		nats.ReconnectHandler(func(nc *nats.Conn) {
-			log.Info().Msgf("%s: NATS client reconnected to %+v", service, nc.ConnectedUrl())
+			slog.Info("%s: NATS client reconnected to %+v", service, nc.ConnectedUrl())
 		}),
 		nats.ClosedHandler(func(nc *nats.Conn) {
-			log.Info().Msgf("%s: NATS client connection closed", service)
+			slog.Info("%s: NATS client connection closed", service)
 		}),
 	}
 
@@ -61,12 +62,16 @@ func New(service string, conf config.NATSConfig) (*Client, error) {
 		if err == nil {
 			break
 		}
-		log.Warn().Msgf("failed to connect to NATS: retry [%v/%v]", i, 10)
+		slog.Warn("failed to connect to NATS: retry [%v/%v]", i, 10)
 		time.Sleep(time.Second)
 	}
 	if err != nil {
+		slog.Warn("triggering shutdown() in %s", service)
+
 		err = fmt.Errorf("failed to connect to NATS: %w", err)
-		log.Fatal().Err(err).Msg(lg.ErrorCause(err).Error())
+		slog.Error(slogger.ErrorCause(err).Error())
+
+		shutdown()
 	}
 
 	return client, nil
@@ -101,87 +106,14 @@ func (c *Client) Unsubscribe() {
 
 // Close grecefuly shutdown NATS and NATS-Streaming connections
 func (c *Client) Close() {
-	log.Info().Msgf("nats: closing NATS connection")
+	slog.Info("nats: closing NATS connection")
 	c.NATSConn.Close()
-}
-
-func (c *Client) Publish(subj string, v interface{}) error {
-	// Log alert if message is trying to be published when NATS client is disconnected
-	if !c.NATSConn.IsConnected() {
-		err := fmt.Errorf("%s: trying to publish message to subject %q but NATS client is disconnected", c.Service, subj)
-		log.Error().Err(err).Msg(lg.ErrorCause(err).Error())
-	}
-	var err error
-	switch data := v.(type) {
-	case []byte:
-		err = c.NATSConn.Publish(subj, data)
-		if err != nil {
-			return fmt.Errorf("%s: error publishing message to %s: %w", c.Service, subj, err)
-		}
-	default:
-		b, err := json.Marshal(v)
-		if err != nil {
-			return err
-		}
-		err = c.NATSConn.Publish(subj, b)
-		if err != nil {
-			return fmt.Errorf("%s: error publishing message to %s: %w", c.Service, subj, err)
-		}
-	}
-
-	return nil
-}
-
-// Broadcast. Fan-out. All subscribed clients will get the messages of a given subject.
-func (c *Client) Subscribe(subj string, cb interface{}) error {
-	// check if callback is valid, expects to be a function with two arguments
-	// eg; func PostPublished(subject string, post *presenter.Post)
-	argType, _, err := argInfo(cb)
-	if err != nil || argType == nil {
-		return fmt.Errorf("%s: invalid argument type for callback: %w", c.Service, err)
-	}
-	// wrap NATS subscribe and provide JSON encoding support for backwards compatibility
-	sub, err := c.NATSConn.Subscribe(subj, func(msg *nats.Msg) {
-		if err := msg.Ack(); err != nil {
-			return
-		}
-		go processMsg(msg.Subject, msg.Data, argType, cb)
-	})
-	if err != nil {
-		return fmt.Errorf("failed to subscribe to %q: %w", subj, err)
-	}
-	c.natsSubs = append(c.natsSubs, sub)
-	return nil
-}
-
-// Queue. Only a single client (of all subscribed clients) will get the message of a given subject.
-func (c *Client) QueueSubscribe(subj string, cb interface{}) error {
-	// check if callback is valid, expects to be a function with two arguments
-	// eg; func PostPublished(subject string, post *presenter.Post)
-	argType, _, err := argInfo(cb)
-	if err != nil || argType == nil {
-		return fmt.Errorf("%s: invalid argument type for callback: %w", c.Service, err)
-	}
-	// wrap NATS queue subscribe and provide JSON encoding support for backwards compatibility
-	// durable name is a combination if the service + subject, eg; api-data.post.published
-	sub, err := c.NATSConn.QueueSubscribe(subj, c.Service, func(msg *nats.Msg) {
-		if err := msg.Ack(); err != nil {
-			return
-		}
-		go processMsg(msg.Subject, msg.Data, argType, cb)
-	})
-	if err != nil {
-		return fmt.Errorf("failed to subscribe to %q: %w", subj, err)
-	}
-	c.natsSubs = append(c.natsSubs, sub)
-	return nil
 }
 
 func (c *Client) PublishCoreNATS(subj string, v interface{}) error {
 	// Log alert if message is trying to be published when NATS client is disconnected
 	if !c.NATSConn.IsConnected() {
-		err := fmt.Errorf("Trying to publish message to subject (%s) but NATS client is disconnected - payload: %+v", subj, v)
-		log.Error().Err(err).Msg(lg.ErrorCause(err).Error())
+		slog.Error("Trying to publish message to subject (%s) but NATS client is disconnected - payload: %+v", subj, v)
 	}
 
 	var err error
