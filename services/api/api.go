@@ -3,10 +3,10 @@ package api
 import (
 	"fmt"
 	"github.com/golang-cz/skeleton/pkg/events"
-	"github.com/golang-cz/skeleton/pkg/lg"
+	"github.com/golang-cz/skeleton/pkg/graceful"
 	"github.com/golang-cz/skeleton/pkg/nats"
+	"github.com/golang-cz/skeleton/pkg/slogger"
 	"github.com/golang-cz/skeleton/pkg/status"
-	"github.com/rs/zerolog/log"
 	"golang.org/x/exp/slog"
 
 	"github.com/golang-cz/skeleton/config"
@@ -18,7 +18,7 @@ type API struct {
 	DbSession *data.Database
 }
 
-func New(conf *config.AppConfig) (*API, error) {
+func New(conf *config.AppConfig, shutdown graceful.TriggerShutdownFn) (*API, error) {
 	// Database
 	database, err := data.NewDBSession(conf.DB)
 	if err != nil {
@@ -26,14 +26,14 @@ func New(conf *config.AppConfig) (*API, error) {
 	}
 
 	//NATS
-	if _, err := nats.Connect("api", conf.NATS); err != nil {
+	if _, err := nats.Connect("api", conf.NATS, shutdown); err != nil {
 		err = fmt.Errorf("failed to connect to NATS server: %w", err)
-		log.Fatal().Err(err).Msg(lg.ErrorCause(err).Error())
+		slog.Error(slogger.ErrorCause(err).Error())
 	}
 
 	if err := status.HealthSubscriber(events.EvAPIHealth); err != nil {
 		err = fmt.Errorf("failed enable health subscribe: %w", err)
-		log.Error().Err(err).Msg(lg.ErrorCause(err).Error())
+		slog.Error(slogger.ErrorCause(err).Error())
 	}
 
 	app := &API{Config: conf, DbSession: database}
