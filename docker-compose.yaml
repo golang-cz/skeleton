@@ -8,7 +8,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - /data:/var/lib/postgresql/data
+      - "postgres15-data:/var/lib/postgresql/data/:rw"
     restart: always
   nats:
       image: nats:2.9
@@ -25,3 +25,6 @@ services:
       - "8877:8877"
 #    network_mode: host
     restart: always
+
+volumes:
+  postgres15-data:
