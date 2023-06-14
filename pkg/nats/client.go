@@ -26,6 +26,15 @@ type Client struct {
 }
 
 func New(service string, conf config.NATSConfig, shutdown graceful.TriggerShutdownFn) (*Client, error) {
+	_, err := url.Parse(conf.Server)
+	if err != nil {
+		return nil, err
+	}
+
+	if service == "" {
+		return nil, errors.New("missing required service argument")
+	}
+
 	opts := []nats.Option{
 		nats.Timeout(5 * time.Second),
 		nats.ReconnectWait(1 * time.Second),
@@ -43,15 +52,6 @@ func New(service string, conf config.NATSConfig, shutdown graceful.TriggerShutdo
 		nats.ClosedHandler(func(nc *nats.Conn) {
 			slog.Info("%s: NATS client connection closed", service)
 		}),
-	}
-
-	_, err := url.Parse(conf.Server)
-	if err != nil {
-		return nil, err
-	}
-
-	if service == "" {
-		return nil, errors.New("missing required service argument")
 	}
 
 	client := &Client{Service: service}
@@ -110,32 +110,32 @@ func (c *Client) Close() {
 	c.NATSConn.Close()
 }
 
-func (c *Client) PublishCoreNATS(subj string, v interface{}) error {
+func (c *Client) Publish(subject string, v interface{}) error {
 	// Log alert if message is trying to be published when NATS client is disconnected
 	if !c.NATSConn.IsConnected() {
-		slog.Error("Trying to publish message to subject (%s) but NATS client is disconnected - payload: %+v", subj, v)
+		slog.Error("Trying to publish message to subject (%s) but NATS client is disconnected - payload: %+v", subject, v)
 	}
 
 	var err error
 	switch data := v.(type) {
 	case []byte:
-		err = c.NATSConn.Publish(subj, data)
+		err = c.NATSConn.Publish(subject, data)
 	default:
 		b, err := json.Marshal(v)
 		if err != nil {
 			return err
 		}
-		err = c.NATSConn.Publish(subj, b)
+		err = c.NATSConn.Publish(subject, b)
 	}
 
 	if err != nil {
-		return fmt.Errorf("error publishing message to %s : %w", subj, err)
+		return fmt.Errorf("error publishing message to %s : %w", subject, err)
 	}
 
 	return nil
 }
 
-func (c *Client) SubscribeCoreNATS(subj string, cb interface{}) error {
+func (c *Client) Subscribe(subj string, cb interface{}) error {
 	// check if callback is valid, expects to be a function with two arguments
 	// eg; func PostPublished(subject string, post *presenter.Post)
 	argType, _, err := argInfo(cb)

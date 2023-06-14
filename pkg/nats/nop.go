@@ -22,8 +22,8 @@ func (c *nopClient) Unsubscribe() { return }
 
 func (c *nopClient) Close() { return }
 
-func (c *nopClient) PublishCoreNATS(subj string, v interface{}) error {
-	err := fmt.Errorf("Trying to publish message to subject (%s) but NATS client is disconnected - payload: %+v", subj, v)
+func (c *nopClient) Publish(subject string, v interface{}) error {
+	err := fmt.Errorf("Trying to publish message to subject (%s) but NATS client is disconnected - payload: %+v", subject, v)
 	if c.Alert {
 		slog.Error(err.Error())
 	} else {
@@ -33,4 +33,4 @@ func (c *nopClient) PublishCoreNATS(subj string, v interface{}) error {
 	return nil
 }
 
-func (c *nopClient) SubscribeCoreNATS(subj string, cb interface{}) error { return nil }
+func (c *nopClient) Subscribe(subject string, payload interface{}) error { return nil }

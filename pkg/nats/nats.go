@@ -17,22 +17,12 @@ type NATSClient interface {
 	Unsubscribe()
 	Close()
 
-	// NATS streaming has all the core NATS features, plus;
-	// -Log based persistence
-	// -At-Least-Once Delivery model, giving reliable message delivery
-	// -Rate matched on a per subscription basis
-	// -Replay/Restart
-	// -Last Value Semantics
-
 	// Publish a messages to NATS
-	PublishCoreNATS(subj string, cb interface{}) error
+	Publish(subject string, payload interface{}) error
 
 	// Subscribes to a NATS subject
-	SubscribeCoreNATS(subj string, cb interface{}) error
+	Subscribe(subject string, payload interface{}) error
 }
-
-// MessagingModel is the type we use to represent the message semantic of a subscriber.
-type MessagingModel int
 
 func Connect(service string, conf config.NATSConfig, shutdown graceful.TriggerShutdownFn) (*Client, error) {
 	client, err := New(service, conf, shutdown)
@@ -62,9 +52,9 @@ func Close() {
 }
 
 func SubscribeCoreNATS(subj string, cb interface{}) error {
-	return DefaultClient.SubscribeCoreNATS(subj, cb)
+	return DefaultClient.Subscribe(subj, cb)
 }
 
 func PublishCoreNATS(subj string, v interface{}) error {
-	return DefaultClient.PublishCoreNATS(subj, v)
+	return DefaultClient.Publish(subj, v)
 }

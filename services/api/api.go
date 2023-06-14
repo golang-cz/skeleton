@@ -46,4 +46,5 @@ func (app *API) Close() {
 	slog.Info("API: closing NATS & DB connections..")
 
 	App.DbSession.Session.Close()
+	nats.Close()
 }

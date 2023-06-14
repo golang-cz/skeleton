@@ -2,16 +2,11 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/internal/core"
-	"github.com/golang-cz/skeleton/pkg/events"
 	"github.com/golang-cz/skeleton/pkg/graceful"
-	"github.com/golang-cz/skeleton/pkg/nats"
-	"github.com/golang-cz/skeleton/pkg/slogger"
-	"github.com/golang-cz/skeleton/pkg/status"
 	"github.com/golang-cz/skeleton/pkg/version"
-	apiHttp "github.com/golang-cz/skeleton/services/api/http"
+	"github.com/golang-cz/skeleton/services/scheduler"
 
 	"log"
 	"net/http"
@@ -47,7 +42,7 @@ func main() {
 
 	srv := &http.Server{
 		Addr:              conf.Port,
-		Handler:           apiHttp.Router(),
+		Handler:           scheduler.Router(),
 		IdleTimeout:       60 * time.Second, // idle connections
 		ReadHeaderTimeout: 10 * time.Second, // request header
 		ReadTimeout:       5 * time.Minute,  // request body
@@ -55,18 +50,11 @@ func main() {
 		MaxHeaderBytes:    1 << 20,          // 1 MB
 	}
 
-	wait, shutdown := graceful.ShutdownHTTPServer(srv, time.Minute)
+	_, shutdown := graceful.ShutdownHTTPServer(srv, time.Minute)
 
-	//NATS
-	if _, err := nats.Connect("scheduler", conf.NATS, shutdown); err != nil {
-		err = fmt.Errorf("failed to connect to NATS server: %w", err)
-		log.Fatal(slogger.ErrorCause(err).Error())
+	if _, err := scheduler.New(conf, shutdown); err != nil {
+		log.Fatal(err)
 	}
 
-	if err := status.HealthSubscriber(events.EvSchedulerHealth); err != nil {
-		err = fmt.Errorf("failed enable health subscribe: %w", err)
-		log.Fatal(slogger.ErrorCause(err).Error())
-	}
-
-	<-wait
+	select {}
 }
