@@ -1,6 +1,7 @@
 package slogger
 
 import (
+	"errors"
 	"os"
 	"strings"
 	"time"
@@ -82,4 +83,14 @@ func replaceAttr(groups []string, a slog.Attr) slog.Attr {
 	// }
 
 	return a
+}
+
+// errorCause recursively unwraps given error and returns the topmost
+// non-nil error cause, same as github.com/pkg/errorCause(err).
+func ErrorCause(err error) error {
+	var cause error
+	for e := err; e != nil; e = errors.Unwrap(e) {
+		cause = e
+	}
+	return cause
 }

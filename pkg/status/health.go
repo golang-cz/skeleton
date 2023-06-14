@@ -2,70 +2,86 @@ package status
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"os"
-	"runtime"
+	"github.com/golang-cz/skeleton/pkg/nats"
+	"golang.org/x/exp/slog"
 	"strings"
+	"time"
 
-	"github.com/golang-cz/skeleton/pkg/version"
+	natsio "github.com/nats-io/nats.go"
 )
-
-const megaByte = 1 << (10 * 2)
 
 type HealthProbe struct {
 	Subject string
 }
 
-func GetServiceStats() *ServiceStats {
-	stats := &ServiceStats{
-		AppVersion:    version.VERSION,
-		NumCPU:        runtime.NumCPU(),
-		NumGoroutines: runtime.NumGoroutine(),
-		GoVersion:     runtime.Version(),
+func (p *HealthProbe) Run(_ context.Context) Result {
+	// creates NATS inbox where services can reply back with their healthz status
+	replyInbox := natsio.NewInbox()
+
+	if err := nats.Ping(); err != nil {
+		return Result{
+			Status: ProbeStatusError,
+			Info:   fmt.Errorf("failed to ping nats: %w", err).Error(),
+		}
 	}
 
-	runtime.ReadMemStats(&stats.MemStats)
-	stats.Hostname, _ = os.Hostname()
+	// sets up a sync subscriber so all service healthz replies can be read sequentially
+	sub, err := nats.Conn().SubscribeSync(replyInbox)
+	if err != nil {
+		return Result{
+			Status: ProbeStatusError,
+			Info:   fmt.Errorf("failed to subscribe to inbox: %w", err).Error(),
+		}
+	}
 
-	return stats
-}
+	defer func() {
+		if err := sub.Unsubscribe(); err != nil {
+			err = fmt.Errorf("failed to  unsubscribe from inbox: %w", err)
+			slog.Error(err.Error())
+		}
+	}()
 
-type ServiceStats struct {
-	AppVersion string `json:"app_version"`
+	// publishes a message to the service healthz subscriber with a temporary inbox address waiting for the replies
+	if err := nats.PublishCoreNATS(p.Subject, ServiceStats{ReplyInbox: replyInbox}); err != nil {
+		return Result{
+			Status: ProbeStatusError,
+			Info:   fmt.Errorf("failed to send ping request: %w", err).Error(),
+		}
+	}
 
-	NumGoroutines int              `json:"go_routines"`
-	GoVersion     string           `json:"go_version"`
-	Hostname      string           `json:"hostname"`
-	NumCPU        int              `json:"cpu_cores"`
-	MemStats      runtime.MemStats `json:"mem_stats"`
+	replies := []*ServiceStats{}
+	for {
+		// if we don't get back a reply within 1 second we stop listening
+		msg, _ := sub.NextMsg(1 * time.Second)
+		if msg == nil {
+			break
+		}
+		var reply *ServiceStats
+		if err := json.Unmarshal(msg.Data, &reply); err != nil {
+			return Result{
+				Status: ProbeStatusError,
+				Info:   fmt.Errorf("failed to unmarshal reply: %w", err).Error(),
+			}
+		}
+		replies = append(replies, reply)
+	}
 
-	ReplyInbox string `json:"reply_inbox"`
-}
-
-func (s *ServiceStats) String() string {
-	return fmt.Sprintf("%v (%v), %v, mem: %vM, heap: %v/%vM, goroutines: %v",
-		s.AppVersion,
-		s.GoVersion,
-		s.Hostname,
-		s.MemStats.Sys/megaByte,
-		s.MemStats.HeapAlloc/megaByte,
-		s.MemStats.HeapSys/megaByte,
-		s.NumGoroutines,
-	)
-}
-
-func (p *HealthProbe) Run(_ context.Context) Result {
-	reply := GetServiceStats()
-
-	info := make([]string, 0, 1)
-	info = append(info, reply.String())
+	info := make([]string, 0, len(replies))
+	for _, r := range replies {
+		info = append(info, r.String())
+	}
 
 	status := ProbeStatusHealthy
+	if len(replies) < 1 {
+		status = ProbeStatusError
+	}
 
 	return Result{
 		Status:        status,
 		Info:          strings.Join(info, "<br>"),
-		InstanceCount: 1,
+		InstanceCount: len(replies),
 	}
 }
 

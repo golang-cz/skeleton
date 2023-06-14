@@ -2,20 +2,16 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"log"
-	"net/http"
-	"os"
-	"time"
-
-	"golang.org/x/exp/slog"
-
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/internal/core"
 	"github.com/golang-cz/skeleton/pkg/graceful"
 	"github.com/golang-cz/skeleton/pkg/version"
-	"github.com/golang-cz/skeleton/services/api"
-	"github.com/golang-cz/skeleton/services/api/rest"
+	"github.com/golang-cz/skeleton/services/scheduler"
+
+	"log"
+	"net/http"
+	"os"
+	"time"
 )
 
 var (
@@ -44,15 +40,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Create app & connect to DB, NATS etc.
-	app, err := api.New(conf)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	srv := &http.Server{
-		Addr:              app.Config.Port,
-		Handler:           rest.Router(app),
+		Addr:              conf.Port,
+		Handler:           scheduler.Router(),
 		IdleTimeout:       60 * time.Second, // idle connections
 		ReadHeaderTimeout: 10 * time.Second, // request header
 		ReadTimeout:       5 * time.Minute,  // request body
@@ -60,23 +50,11 @@ func main() {
 		MaxHeaderBytes:    1 << 20,          // 1 MB
 	}
 
-	wait, _ := graceful.ShutdownHTTPServer(srv, time.Minute)
+	_, shutdown := graceful.ShutdownHTTPServer(srv, time.Minute)
 
-	defer app.Close()
-
-	slog.Info(
-		fmt.Sprintf(
-			"running application in %s environment version %s",
-			app.Config.Environment.String(),
-			version.VERSION,
-		),
-	)
-
-	slog.Info(fmt.Sprintf("API serving at %v", app.Config.Port))
-
-	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+	if _, err := scheduler.New(conf, shutdown); err != nil {
 		log.Fatal(err)
 	}
 
-	<-wait
+	select {}
 }

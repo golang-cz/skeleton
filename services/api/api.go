@@ -2,7 +2,10 @@ package api
 
 import (
 	"fmt"
-
+	"github.com/golang-cz/skeleton/pkg/events"
+	"github.com/golang-cz/skeleton/pkg/nats"
+	"github.com/golang-cz/skeleton/pkg/slogger"
+	"github.com/golang-cz/skeleton/pkg/status"
 	"golang.org/x/exp/slog"
 
 	"github.com/golang-cz/skeleton/config"
@@ -20,7 +23,19 @@ func New(conf *config.AppConfig) (*API, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to main DB: %w", err)
 	}
+
 	app := &API{Config: conf, DbSession: database}
+
+	//NATS
+	if _, err := nats.Connect("api", conf.NATS, app.Close); err != nil {
+		err = fmt.Errorf("failed to connect to NATS server: %w", err)
+		slog.Error(slogger.ErrorCause(err).Error())
+	}
+
+	if err := status.HealthSubscriber(events.EvAPIHealth); err != nil {
+		err = fmt.Errorf("failed enable health subscribe: %w", err)
+		slog.Error(slogger.ErrorCause(err).Error())
+	}
 
 	return app, nil
 }
@@ -29,4 +44,5 @@ func (app *API) Close() {
 	slog.Info("API: closing NATS & DB connections..")
 
 	app.DbSession.Session.Close()
+	nats.Close()
 }
