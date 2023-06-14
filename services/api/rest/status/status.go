@@ -3,6 +3,7 @@ package status
 import (
 	"context"
 	"fmt"
+	"github.com/golang-cz/skeleton/pkg/events"
 	"net/http"
 	"strings"
 	"sync"
@@ -29,9 +30,15 @@ func StatusPage(api *api.API) http.HandlerFunc {
 		ctx := r.Context()
 		serviceProbes := []probe{
 			{
-				Key: "Api",
+				Key: "api",
 				Probe: &status.HealthProbe{
-					Subject: "api",
+					Subject: events.EvAPIHealth,
+				},
+			},
+			{
+				Key: "scheduler",
+				Probe: &status.HealthProbe{
+					Subject: events.EvSchedulerHealth,
 				},
 			},
 		}
