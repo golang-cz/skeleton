@@ -1,0 +1,36 @@
+name: Pull Request fixes
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15.3
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: pass
+        ports:
+          - "5432:5432"
+    steps:
+      - name: Git clone
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GIT_TOKEN }} # Check the repository secrets on the Github
+          ref: ${{ github.event.pull_request.head.sha }} # Checkout Pull Request HEAD commit instead of the default Pull Request merge commit.
+          fetch-depth: 100
+      - name: Fix migrations
+        run: |
+          curl -L https://github.com/pressly/goose/releases/download/v3.5.3/goose_linux_x86_64 --output goose
+          chmod +x goose
+          git config user.name 'borovyar' 
+          git config user.email 'yborovyk87@gmail.com'
+          git fetch && git checkout master
+          ./goose -dir=cmd/goose/migrations fix
+          rm -rf goose
+          git add -A
+          git commit -m "[AUTOMATED] fixed migrations" || true
+          git push origin
