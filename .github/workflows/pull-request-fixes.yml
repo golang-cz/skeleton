@@ -29,7 +29,7 @@ jobs:
           git config user.name 'borovyar' 
           git config user.email 'yborovyk87@gmail.com'
           git fetch && git checkout master
-          ./goose -dir=cmd/goose/migrations fix
+          ./goose -dir=data/migration/migrations fix
           rm -rf goose
           git add -A
           git commit -m "[AUTOMATED] fixed migrations" || true
