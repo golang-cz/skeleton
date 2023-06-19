@@ -39,7 +39,7 @@ jobs:
           options: -v ${{ github.workspace }}:/app
           run: |
             cd /app
-            golangci-lint run -c /app/.golangci.yml /app/services/... /app/rpc/...
+            golangci-lint run -c /app/.golangci.yml /app/services/... /internal/... /pkg/...
       - name: Check for big files
         run: |
           git config --global --add safe.directory '*'
