@@ -72,6 +72,8 @@ copy_files() {
     local source=$1
     local destination=$2
 
+    shopt -s dotglob # Include hidden files and folders
+
     for file in "$source"/*; do
         local file_name=$(basename "$file")
 
@@ -104,6 +106,8 @@ copy_files() {
         cp "$gitignore_file" "$dest_gitignore"
         replace_in_file "$new_module_name" "$dest_gitignore"
     fi
+
+    shopt -u dotglob # Disable including hidden files and folders
 }
 
 # Replace string in a file
