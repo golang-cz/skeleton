@@ -9,6 +9,9 @@ import (
 
 	"log"
 	"os"
+	"time"
+	"github.com/golang-cz/skeleton/pkg/graceful"
+	"context"
 )
 
 var (
@@ -37,9 +40,20 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if _, err := scheduler.New(conf, nil); err != nil {
+	var app *scheduler.Scheduler
+
+	stopListening := func(ctx context.Context) error {
+		if app != nil {
+			app.Close()
+		}
+		return nil
+	}
+
+	wait, shutdown := graceful.Shutdown(stopListening, time.Minute)
+
+	if app, err = scheduler.New(conf, shutdown); err != nil {
 		log.Fatal(err)
 	}
 
-	select {}
+	<-wait
 }
