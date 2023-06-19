@@ -12,39 +12,9 @@ concurrency:
 jobs:
   tests:
     runs-on: [ self-hosted, gha, defaultscaling ]
-    container:
-      image: golang:1.20-alpine3.18
-    services:
-      postgres:
-        image: postgres:15.3
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: pass
-        ports:
-          - "5432:5432"
-    steps:
-      - name: Git clone
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.head.sha }} # Checkout Pull Request HEAD commit instead of the default Pull Request merge commit.
-          fetch-depth: 1
-      - name: test-static
-        uses: addnab/docker-run-action@v3
-        with:
-          image: ghcr.io/golang-cz/static-analysis:latest
-          options: -v ${{ github.workspace }}:/app
-          run: |
-            cd /app
-            golangci-lint run -c /app/.golangci.yml /app/services/... /app/rpc/...
-      - name: Check for big files
-        run: |
-          git config --global --add safe.directory '*'
-          if [[ $(git ls-files | xargs du -hs --threshold=2M 2>/dev/null | tee /dev/stderr | wc -l) -gt 0 ]]; then
-            echo "Aborting due to big files in the git repository."
-            exit 1;
-          fi
-
+    uses: ./.github/workflows/checks.yml  # use the callable tests job to run tests
   docker-build:
+    needs: [tests]
     runs-on: [self-hosted, gha, defaultscaling]
     env:
       BUILDER_IMAGE: golang:1.20-alpine3.18

@@ -1,7 +1,7 @@
 name: Pull Request checks
 on:
   pull_request:
-    types: [opened, edited, synchronize, reopened]
+    types: [ opened, edited, synchronize, reopened ]
 
 jobs:
   tests:
@@ -27,3 +27,18 @@ jobs:
         run: |
           go install github.com/mfridman/tparse@latest 
           set -o pipefail && DIR=$PWD go test -parallel 1 ./... -json | tparse -all
+      - name: test-static
+        uses: addnab/docker-run-action@v3
+        with:
+          image: ghcr.io/golang-cz/static-analysis:latest
+          options: -v ${{ github.workspace }}:/app
+          run: |
+            cd /app
+            golangci-lint run -c /app/.golangci.yml /app/services/... /app/rpc/...
+      - name: Check for big files
+        run: |
+          git config --global --add safe.directory '*'
+          if [[ $(git ls-files | xargs du -hs --threshold=2M 2>/dev/null | tee /dev/stderr | wc -l) -gt 0 ]]; then
+            echo "Aborting due to big files in the git repository."
+            exit 1;
+          fi
