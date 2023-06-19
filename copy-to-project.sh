@@ -44,6 +44,11 @@ if [[ -z $destination_dir || -z $new_module_name ]]; then
     exit 1
 fi
 
+if [ ! -d "$destination_dir" ]; then
+    mkdir -p $destination_dir
+fi
+
+
 if [[ -z $new_project_name ]]; then
     new_project_name=$(echo "$new_module_name" | awk -F '/' '{print $NF}')
 fi
