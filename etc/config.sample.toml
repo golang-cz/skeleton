@@ -1,12 +1,12 @@
 bind_address = ":8877"
-environment = "production"
+environment = "local"
 disable_handler_success_log = false
 
 [db]
     app_name = "skeleton"
     conn_max_lifetime = "1800s"
     connect_timeout = 5
-    database = "test"
+    database = "postgres"
     debug_queries = false
     host = "127.0.0.1:5432"
     max_idle_conns = 10
