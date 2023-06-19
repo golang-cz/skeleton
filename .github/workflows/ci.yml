@@ -11,11 +11,11 @@ concurrency:
 
 jobs:
   tests:
-    runs-on: [ self-hosted, gha, defaultscaling ]
+    runs-on: ubuntu-latest
     uses: ./.github/workflows/checks.yml  # use the callable tests job to run tests
   docker-build:
     needs: [tests]
-    runs-on: [self-hosted, gha, defaultscaling]
+    runs-on: ubuntu-latest
     env:
       BUILDER_IMAGE: golang:1.20-alpine3.18
     steps:
