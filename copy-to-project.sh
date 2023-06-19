@@ -5,11 +5,11 @@ script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 # Default values
 destination_dir=""
-replace_string=""
+new_module_name=""
 
 # Function to print usage information
 usage() {
-    echo "Usage: ./copy_files.sh -t <destination_directory> -m <replace_string> -n <name-of-new-project>"
+    echo -e "Usage: ./copy_files.sh \n\t-t <destination_directory> \n\t-m <new_module_name> \n\t-n <new_project_name> optional"
 }
 
 # Parse command line arguments
@@ -19,10 +19,10 @@ while getopts ":t:m:n:" opt; do
         destination_dir="${OPTARG%/}" # Remove trailing slash, if any
         ;;
     m)
-        replace_string="$OPTARG"
+        new_module_name="$OPTARG"
         ;;
     n)
-        new_name="$OPTARG"
+        new_project_name="$OPTARG"
         ;;
     \?)
         echo "Invalid option: -$OPTARG" >&2
@@ -38,10 +38,14 @@ while getopts ":t:m:n:" opt; do
 done
 
 # Check if destination directory is provided
-if [[ -z $destination_dir || -z $replace_string || -z $new_name ]]; then
+if [[ -z $destination_dir || -z $new_module_name ]]; then
     echo "Missing required argument(s)."
     usage
     exit 1
+fi
+
+if [[ -z $new_project_name ]]; then
+    new_project_name=$(echo "$new_module_name" | awk -F '/' '{print $NF}')
 fi
 
 # template module name
@@ -80,7 +84,7 @@ copy_files() {
         if [[ -f "$file" ]]; then
             local dest_file="$destination/$file_name"
             cp "$file" "$dest_file"
-            replace_in_file "$replace_string" "$dest_file"
+            replace_in_file "$new_module_name" "$dest_file"
         elif [[ -d "$file" ]]; then
             local dest_dir="$destination/$file_name"
             mkdir -p "$dest_dir"
@@ -93,7 +97,7 @@ copy_files() {
     if [[ -f "$gitignore_file" ]]; then
         local dest_gitignore="$destination/.gitignore"
         cp "$gitignore_file" "$dest_gitignore"
-        replace_in_file "$replace_string" "$dest_gitignore"
+        replace_in_file "$new_module_name" "$dest_gitignore"
     fi
 }
 
@@ -103,8 +107,8 @@ replace_in_file() {
     local file="$2"
 
     # Find and replace the string in the file
-    sed -i "s#$old_module#$replace_string#g" "$file"
-    sed -i "s#Skeleton#$new_name#gI" "$file"
+    sed -i "s#$old_module#$new_module_name#g" "$file"
+    sed -i "s#Skeleton#$new_project_name#gI" "$file"
 }
 
 # Call the function to start copying files
