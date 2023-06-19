@@ -4,14 +4,11 @@ import (
 	"flag"
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/internal/core"
-	"github.com/golang-cz/skeleton/pkg/graceful"
 	"github.com/golang-cz/skeleton/pkg/version"
 	"github.com/golang-cz/skeleton/services/scheduler"
 
 	"log"
-	"net/http"
 	"os"
-	"time"
 )
 
 var (
@@ -35,24 +32,12 @@ func main() {
 	}
 
 	// Setup application
-	err = core.SetupApp(conf, "Skeleton-API", version.VERSION)
+	err = core.SetupApp(conf, "Skeleton-Scheduler", version.VERSION)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	srv := &http.Server{
-		Addr:              conf.Port,
-		Handler:           scheduler.Router(),
-		IdleTimeout:       60 * time.Second, // idle connections
-		ReadHeaderTimeout: 10 * time.Second, // request header
-		ReadTimeout:       5 * time.Minute,  // request body
-		WriteTimeout:      5 * time.Minute,  // response body
-		MaxHeaderBytes:    1 << 20,          // 1 MB
-	}
-
-	_, shutdown := graceful.ShutdownHTTPServer(srv, time.Minute)
-
-	if _, err := scheduler.New(conf, shutdown); err != nil {
+	if _, err := scheduler.New(conf, nil); err != nil {
 		log.Fatal(err)
 	}
 

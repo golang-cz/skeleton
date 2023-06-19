@@ -17,7 +17,6 @@ type Scheduler struct {
 }
 
 func New(conf *config.AppConfig, shutdown graceful.TriggerShutdownFn) (*Scheduler, error) {
-
 	//NATS
 	if _, err := nats.Connect("api", conf.NATS, shutdown); err != nil {
 		err = fmt.Errorf("failed to connect to NATS server: %w", err)

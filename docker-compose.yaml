@@ -15,16 +15,16 @@ services:
       restart: always
       ports:
         - 4222:4222
-  skeleton:
-    build: .
-    container_name: skeleton
-    depends_on:
-      - postgresql
-      - nats
-    ports:
-      - "8877:8877"
-#    network_mode: host
-    restart: always
+#  skeleton:
+#    build: .
+#    container_name: skeleton
+#    depends_on:
+#      - postgresql
+#      - nats
+#    ports:
+#      - "8877:8877"
+##    network_mode: host
+#    restart: always
 
 volumes:
   postgres15-data:
