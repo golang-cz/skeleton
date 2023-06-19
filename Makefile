@@ -48,6 +48,9 @@ dev-db-down:
 run-api:
 	rerun -watch ./ -ignore vendor bin tests mounts -run sh -c 'go build -o ./bin/api ./cmd/api/main.go && ./bin/api -config=etc/config.toml'
 
+run-scheduler:
+	rerun -watch ./ -ignore vendor bin tests mounts -run sh -c 'go build -o ./bin/scheduler ./cmd/scheduler/main.go && ./bin/scheduler -config=etc/config.toml'
+
 dev: dev-db-up db-up
 	rerun -watch ./ -ignore vendor bin tests mounts -run sh -c 'go build -o ./bin/api ./cmd/api/main.go && ./bin/api -config=etc/config.toml'
 
