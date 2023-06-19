@@ -4,17 +4,6 @@ on:
     types: [opened, edited, synchronize, reopened]
 
 jobs:
-  jira-card:
-    runs-on: ubuntu-latest
-    steps:
-      - name: PR title must reference Jira card
-        run: |
-          if [[ "${{github.event.pull_request.title}}" =~ [A-Z][A-Z0-9]+[-]{1}[0-9]{1,5} ]]; then
-            echo "PR title matches Jira card."
-          else
-            echo "PR title doesn't match a Jira card."
-            exit 1
-          fi
   tests:
     runs-on: ubuntu-latest
     services:
