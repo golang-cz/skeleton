@@ -32,14 +32,14 @@ jobs:
         run: |
           go install github.com/mfridman/tparse@latest 
           set -o pipefail && DIR=$PWD go test -parallel 1 ./... -json | tparse -all
-      - name: test-static
+      - name: Static analysis check
         uses: addnab/docker-run-action@v3
         with:
           image: ghcr.io/golang-cz/static-analysis:latest
           options: -v ${{ github.workspace }}:/app
           run: |
             cd /app
-            golangci-lint run -c /app/.golangci.yml /app/services/... /internal/... /pkg/... /data/...
+            golangci-lint run -c /app/.golangci.yml /app/services/... /app/internal/... /app/pkg/... /app/data/...
       - name: Check for big files
         run: |
           git config --global --add safe.directory '*'
