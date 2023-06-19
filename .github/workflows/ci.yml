@@ -43,31 +43,6 @@ jobs:
             echo "Aborting due to big files in the git repository."
             exit 1;
           fi
-  tests2:
-    runs-on: [ self-hosted, gha, defaultscaling ]
-    container:
-      image: golang:1.20-alpine3.18
-    services:
-      postgres:
-        image: postgres:15.3
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: pass
-        ports:
-          - "5432:5432"
-    steps:
-      - name: Git clone
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.head.sha }} # Checkout Pull Request HEAD commit instead of the default Pull Request merge commit.
-          fetch-depth: 1
-      - name: Check for big files
-        run: |
-          git config --global --add safe.directory '*'
-          if [[ $(git ls-files | xargs du -hs --threshold=2M 2>/dev/null | tee /dev/stderr | wc -l) -gt 0 ]]; then
-            echo "Aborting due to big files in the git repository."
-            exit 1;
-          fi
 
   docker-build:
     runs-on: [self-hosted, gha, defaultscaling]
