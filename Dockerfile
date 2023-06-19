@@ -1,24 +1,34 @@
-FROM golang:1.20-alpine3.18
-
-
+# -----------------------------------------------------------------
+# Builder
+# -----------------------------------------------------------------
 ARG BUILDER_IMAGE
+
 FROM ${BUILDER_IMAGE} as builder
 
 ARG VERSION
 ARG COMMIT
-WORKDIR /app
+
+WORKDIR /skeleton
 ADD ./ ./
+
+RUN apk add --update make bash git
+RUN make vendor
 RUN mkdir /out && \
-    GOBIN=/out VERSION=${VERSION} COMMIT=${COMMIT} make -j8 dist
+    GOBIN=/out VERSION=${VERSION} COMMIT=${COMMIT} make build
 
-COPY go.mod .
+# -----------------------------------------------------------------
+# Runner
+# -----------------------------------------------------------------
+FROM alpine:3.16
 
-RUN go mod download
+ENV TZ=UTC
 
-COPY . .
+RUN apk add --no-cache --update ca-certificates
 
-RUN go build -o api cmd/api/main.go
+COPY --from=builder /out/api /usr/bin/
+COPY --from=builder /out/goose /usr/bin/
 
 EXPOSE 8877
 
-CMD ["./api"] 
+CMD ["api", "-config=/etc/dev.toml"]
+

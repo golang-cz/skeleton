@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - duplicated_step
 
 concurrency:
   group: ${{ github.ref }}
