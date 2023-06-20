@@ -1,0 +1,71 @@
+# options for analysis running
+run:
+  # default concurrency is a available CPU number
+  concurrency: 4
+
+  # timeout for analysis, e.g. 30s, 5m, default is 1m
+  timeout: 5m
+
+  # exit code when at least one issue was found, default is 1
+  issues-exit-code: 1
+
+  # include test files or not, default is true
+  tests: true
+
+  # Allow multiple parallel golangci-lint instances running.
+  # If false (default) - golangci-lint acquires file lock on start.
+  allow-parallel-runners: false
+
+  skip-dirs-use-default: true
+
+  skip-dirs:
+    - assets/
+    - be/
+    - bin/
+    - data/schema/
+    - docker/
+    - docs/
+    - etc/
+    - scripts/
+    - tests/
+
+output:
+  # colored-line-number|line-number|json|tab|checkstyle|code-climate|junit-xml|github-actions
+  # default is "colored-line-number"
+  format: colored-line-number
+
+  # print lines of code with issue, default is true
+  print-issued-lines: true
+
+  # print linter name in the end of issue text, default is true
+  print-linter-name: true
+
+  # make issues output unique by line, default is true
+  uniq-by-line: true
+
+  # add a prefix to the output file references; default is no prefix
+  path-prefix: ""
+
+  # sorts results by: filepath, line and column
+  sort-results: false
+
+  # Default: use Go version from the go.mod file, fallback on the env var `GOVERSION`, fallback on 1.18
+  go: '1.19'
+
+issues:
+  max-issues-per-linter: 50
+  
+
+linters:
+  disable-all: true
+  enable:
+    - bodyclose
+    - wraperrchecker
+
+linters-settings:
+  custom:
+    wraperrchecker:
+#      Path in docker image
+      path: /usr/bin/wrap-err-checker.so
+      description: "Checking correct wrapping of errors"
+      original-url: "https://github.com/golang-cz/static-analysis"

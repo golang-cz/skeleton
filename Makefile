@@ -72,8 +72,10 @@ down-rmi:
 	@docker-compose down --remove-orphans --rmi all
 
 
-# GOOSE
+test-analysis:
+	docker run --rm -v $(shell pwd):/app -u $(shell id -u):$(shell id -g) -w /app -e GOCACHE=/app/.cache/golang -e GOLANGCI_LINT_CACHE=/app/.cache/golangci ghcr.io/golang-cz/static-analysis:latest golangci-lint run -c .golangci.yml services/... rpc/...
 
+# GOOSE DB Migrations
 create-migration: build-goose
 	@./bin/goose -config=./etc/config.toml create $(filter-out $@,$(MAKECMDGOALS))
 
