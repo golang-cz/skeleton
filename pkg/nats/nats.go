@@ -2,7 +2,6 @@ package nats
 
 import (
 	"github.com/golang-cz/skeleton/config"
-	"github.com/golang-cz/skeleton/pkg/graceful"
 	"github.com/nats-io/nats.go"
 )
 
@@ -24,8 +23,8 @@ type NATSClient interface {
 	Subscribe(subject string, payload interface{}) error
 }
 
-func Connect(service string, conf config.NATSConfig, shutdown graceful.TriggerShutdownFn) (*Client, error) {
-	client, err := New(service, conf, shutdown)
+func Connect(service string, conf config.NATSConfig) (*Client, error) {
+	client, err := New(service, conf)
 	if err != nil {
 		return nil, err
 	}

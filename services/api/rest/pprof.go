@@ -1,4 +1,4 @@
-package pprof
+package rest
 
 import (
 	"net/http"
@@ -7,10 +7,10 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func Router() http.Handler {
+func (s *Server) PprofRouter() http.Handler {
 	r := chi.NewRouter()
 
-	r.Route("/debug/pprof", func(r chi.Router) {
+	r.Route("/", func(r chi.Router) {
 		r.Get("/", pprof.Index)
 		r.Get("/cmdline", pprof.Cmdline)
 		r.Get("/profile", pprof.Profile)

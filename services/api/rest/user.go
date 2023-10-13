@@ -1,4 +1,4 @@
-package user
+package rest
 
 import (
 	"context"
@@ -10,29 +10,23 @@ import (
 	"github.com/upper/db/v4"
 
 	data "github.com/golang-cz/skeleton/data/database"
-	"github.com/golang-cz/skeleton/services/api"
 )
 
-type Api struct {
-	App *api.API
-}
-
-func Router(api *api.API) http.Handler {
-	a := &Api{App: api}
+func (s *Server) UserRouter() http.Handler {
 	r := chi.NewRouter()
 
 	r.Route("/{uuid}", func(r chi.Router) {
-		r.Use(a.UserCtx)
+		r.Use(s.UserCtx)
 		r.Get("/detail", getUser)
 	})
 
 	return r
 }
 
-func (a *Api) UserCtx(next http.Handler) http.Handler {
+func (s *Server) UserCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userID := chi.URLParam(r, "uuid")
-		user, err := a.dbGetUser(userID)
+		user, err := s.dbGetUser(userID)
 		if err != nil {
 			http.Error(w, http.StatusText(418), 418)
 			return
@@ -43,11 +37,10 @@ func (a *Api) UserCtx(next http.Handler) http.Handler {
 	})
 }
 
-func (a *Api) dbGetUser(userID string) (userstore data.UserStore, err error) {
+func (s *Server) dbGetUser(userID string) (userstore data.UserStore, err error) {
 	var user data.UserStore
-	dbsess := a.App.DbSession.Session
 
-	err = dbsess.Get(&user, db.Cond{"id": userID})
+	err = s.DB.Session.Get(&user, db.Cond{"id": userID})
 	if err != nil {
 		return user, fmt.Errorf("user from db: %w", err)
 	}

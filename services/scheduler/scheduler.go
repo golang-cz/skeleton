@@ -2,8 +2,8 @@ package scheduler
 
 import (
 	"fmt"
+
 	"github.com/golang-cz/skeleton/pkg/events"
-	"github.com/golang-cz/skeleton/pkg/graceful"
 	"github.com/golang-cz/skeleton/pkg/nats"
 	"github.com/golang-cz/skeleton/pkg/slogger"
 	"github.com/golang-cz/skeleton/pkg/status"
@@ -16,9 +16,9 @@ type Scheduler struct {
 	Config *config.AppConfig
 }
 
-func New(conf *config.AppConfig, shutdown graceful.TriggerShutdownFn) (*Scheduler, error) {
-	//NATS
-	if _, err := nats.Connect("api", conf.NATS, shutdown); err != nil {
+func New(conf *config.AppConfig) (*Scheduler, error) {
+	// NATS
+	if _, err := nats.Connect("api", conf.NATS); err != nil {
 		err = fmt.Errorf("failed to connect to NATS server: %w", err)
 		slog.Error(slogger.ErrorCause(err).Error())
 	}
@@ -35,7 +35,13 @@ func New(conf *config.AppConfig, shutdown graceful.TriggerShutdownFn) (*Schedule
 	return scheduler, nil
 }
 
-func (app *Scheduler) Close() {
+func (s *Scheduler) Run() error {
+	select {} // TODO
+
+	return nil
+}
+
+func (s *Scheduler) Stop() {
 	slog.Info("API: closing NATS & DB connections..")
 
 	nats.Close()
