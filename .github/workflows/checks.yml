@@ -39,7 +39,7 @@ jobs:
       - name: Static analysis check
         uses: addnab/docker-run-action@v3
         with:
-          image: ghcr.io/golang-cz/static-analysis:latest
+          image: ghcr.io/golang-cz/static-analysis:v23.10.15-a16f233
           options: -v ${{ github.workspace }}:/src -w /src
           run: golangci-lint run -c ./.golangci.yml ./...
       - name: Check for big files
