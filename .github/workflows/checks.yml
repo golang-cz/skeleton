@@ -40,10 +40,8 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           image: ghcr.io/golang-cz/static-analysis:latest
-          options: -v ${{ github.workspace }}:/app
-          run: |
-            cd /app
-            golangci-lint run -c /app/.golangci.yml /app/services/... /app/internal/... /app/pkg/... /app/data/... /app/config/... /app/cmd/...
+          options: -v ${{ github.workspace }}:/src -w /src
+          run: golangci-lint run -c ./.golangci.yml ./...
       - name: Check for big files
         run: |
           if [[ $(git ls-files | xargs du -hs --threshold=2M 2>/dev/null | tee /dev/stderr | wc -l) -gt 0 ]]; then
