@@ -50,11 +50,10 @@ output:
   sort-results: false
 
   # Default: use Go version from the go.mod file, fallback on the env var `GOVERSION`, fallback on 1.18
-  go: '1.19'
+  #go: ''
 
 issues:
   max-issues-per-linter: 50
-  
 
 linters:
   disable-all: true
@@ -65,7 +64,7 @@ linters:
 linters-settings:
   custom:
     wraperrchecker:
-#      Path in docker image
+      # Path in docker image
       path: /usr/bin/wrap-err-checker.so
       description: "Checking correct wrapping of errors"
       original-url: "https://github.com/golang-cz/static-analysis"
