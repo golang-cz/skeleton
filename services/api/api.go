@@ -88,11 +88,10 @@ func (app *API) Run() error {
 }
 
 func (app *API) Stop(maxDuration time.Duration) (err error) {
-	slog.Info("API: HTTP server gracefully shutting down", "maxDuration", maxDuration)
+	slog.Info("API: HTTP server gracefully shutting down..", "maxDuration", maxDuration)
 
 	ctx, cancel := context.WithTimeout(context.Background(), maxDuration)
 	defer cancel()
-	defer close(app.shutdownFinished)
 
 	start := time.Now()
 	defer func() {
@@ -101,11 +100,13 @@ func (app *API) Stop(maxDuration time.Duration) (err error) {
 		} else {
 			slog.Info("API: HTTP server graceful shutdown finished", "duration", time.Since(start))
 		}
-
-		slog.Info("API: closing connections..")
-		_ = app.DB.Session.Close()
-		nats.Close()
 	}()
+
+	// Close connections to DB, NATS etc.
+	defer app.teardown()
+
+	// Finally, unblock app.Run().
+	defer close(app.shutdownFinished)
 
 	// Finish active connections.
 	err = app.HTTP.Shutdown(ctx)
@@ -114,4 +115,11 @@ func (app *API) Stop(maxDuration time.Duration) (err error) {
 	}
 
 	return nil
+}
+
+func (app *API) teardown() {
+	slog.Info("API: tearing down..")
+
+	_ = app.DB.Session.Close()
+	nats.Close()
 }
