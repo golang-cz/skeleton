@@ -2,20 +2,17 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
-	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
-
-	"golang.org/x/exp/slog"
 
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/internal/core"
-	"github.com/golang-cz/skeleton/pkg/graceful"
 	"github.com/golang-cz/skeleton/pkg/version"
 	"github.com/golang-cz/skeleton/services/api"
-	"github.com/golang-cz/skeleton/services/api/rest"
+	"golang.org/x/exp/slog"
 )
 
 var (
@@ -50,33 +47,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	srv := &http.Server{
-		Addr:              app.Config.Port,
-		Handler:           rest.Router(app),
-		IdleTimeout:       60 * time.Second, // idle connections
-		ReadHeaderTimeout: 10 * time.Second, // request header
-		ReadTimeout:       5 * time.Minute,  // request body
-		WriteTimeout:      5 * time.Minute,  // response body
-		MaxHeaderBytes:    1 << 20,          // 1 MB
-	}
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	go func() {
+		sig := <-sigs
+		slog.Info("received signal", "signal", sig)
+		app.Stop(10 * time.Second)
+	}()
 
-	wait, _ := graceful.ShutdownHTTPServer(srv, time.Minute)
-
-	defer app.Close()
-
-	slog.Info(
-		fmt.Sprintf(
-			"running application in %s environment version %s",
-			app.Config.Environment.String(),
-			version.VERSION,
-		),
-	)
-
-	slog.Info(fmt.Sprintf("API serving at %v", app.Config.Port))
-
-	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+	if err := app.Run(); err != nil {
 		log.Fatal(err)
 	}
-
-	<-wait
 }

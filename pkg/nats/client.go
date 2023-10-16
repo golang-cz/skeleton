@@ -4,13 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/golang-cz/skeleton/config"
-	"github.com/golang-cz/skeleton/pkg/graceful"
-	"github.com/golang-cz/skeleton/pkg/slogger"
-	"golang.org/x/exp/slog"
 	"net/url"
 	"reflect"
 	"time"
+
+	"github.com/golang-cz/skeleton/config"
+	"golang.org/x/exp/slog"
 
 	"github.com/nats-io/nats.go"
 )
@@ -25,7 +24,7 @@ type Client struct {
 	natsSubs []*nats.Subscription
 }
 
-func New(service string, conf config.NATSConfig, shutdown graceful.TriggerShutdownFn) (*Client, error) {
+func New(service string, conf config.NATSConfig) (*Client, error) {
 	_, err := url.Parse(conf.Server)
 	if err != nil {
 		return nil, err
@@ -62,16 +61,11 @@ func New(service string, conf config.NATSConfig, shutdown graceful.TriggerShutdo
 		if err == nil {
 			break
 		}
-		slog.Warn("failed to connect to NATS: retry [%v/%v]", i, 10)
+		slog.Warn(fmt.Sprintf("failed to connect to NATS: retry [%v/%v]", i, 10))
 		time.Sleep(time.Second)
 	}
 	if err != nil {
-		slog.Warn("triggering shutdown() in %s", service)
-
-		err = fmt.Errorf("failed to connect to NATS: %w", err)
-		slog.Error(slogger.ErrorCause(err).Error())
-
-		shutdown()
+		return nil, fmt.Errorf("failed to connect to NATS: %w", err)
 	}
 
 	return client, nil
