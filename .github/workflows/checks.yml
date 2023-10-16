@@ -31,7 +31,7 @@ jobs:
         run: git config --global --add safe.directory '*'
       - uses: actions/setup-go@v4
         with:
-          go-version: "1.20.5"
+          go-version: "1.21"
       - name: Run go tests
         run: |
           go install github.com/mfridman/tparse@latest 
