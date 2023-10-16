@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"golang.org/x/exp/slog"
+	"slog"
 
 	"github.com/golang-cz/skeleton/pkg/version"
 )

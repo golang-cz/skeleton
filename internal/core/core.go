@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"golang.org/x/exp/slog"
+	"slog"
 
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/pkg/alert"

@@ -3,11 +3,12 @@ package scheduler
 import (
 	"fmt"
 
+	"slog"
+
 	"github.com/golang-cz/skeleton/pkg/events"
 	"github.com/golang-cz/skeleton/pkg/nats"
 	"github.com/golang-cz/skeleton/pkg/slogger"
 	"github.com/golang-cz/skeleton/pkg/status"
-	"golang.org/x/exp/slog"
 
 	"github.com/golang-cz/skeleton/config"
 )

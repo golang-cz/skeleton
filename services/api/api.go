@@ -6,13 +6,14 @@ import (
 	"net/http"
 	"time"
 
+	"slog"
+
 	"github.com/golang-cz/skeleton/pkg/events"
 	"github.com/golang-cz/skeleton/pkg/nats"
 	"github.com/golang-cz/skeleton/pkg/slogger"
 	"github.com/golang-cz/skeleton/pkg/status"
 	"github.com/golang-cz/skeleton/pkg/version"
 	"github.com/golang-cz/skeleton/services/api/rest"
-	"golang.org/x/exp/slog"
 
 	"github.com/golang-cz/skeleton/config"
 	data "github.com/golang-cz/skeleton/data/database"

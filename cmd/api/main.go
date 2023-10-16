@@ -8,11 +8,12 @@ import (
 	"syscall"
 	"time"
 
+	"slog"
+
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/internal/core"
 	"github.com/golang-cz/skeleton/pkg/version"
 	"github.com/golang-cz/skeleton/services/api"
-	"golang.org/x/exp/slog"
 )
 
 var (

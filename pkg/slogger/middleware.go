@@ -8,8 +8,9 @@ import (
 	"strings"
 	"time"
 
+	"slog"
+
 	"github.com/go-chi/chi/middleware"
-	"golang.org/x/exp/slog"
 
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/internal/sanitize"

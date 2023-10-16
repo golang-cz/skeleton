@@ -8,8 +8,9 @@ import (
 	"reflect"
 	"time"
 
+	"slog"
+
 	"github.com/golang-cz/skeleton/config"
-	"golang.org/x/exp/slog"
 
 	"github.com/nats-io/nats.go"
 )
