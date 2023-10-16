@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"reflect"
 
-	"slog"
+	"log/slog"
 
 	"github.com/golang-cz/skeleton/pkg/alert"
 )

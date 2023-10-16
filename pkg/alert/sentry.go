@@ -12,7 +12,7 @@ import (
 	"runtime"
 	"time"
 
-	"slog"
+	"log/slog"
 
 	"github.com/getsentry/sentry-go"
 

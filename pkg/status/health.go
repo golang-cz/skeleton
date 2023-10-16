@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"slog"
+	"log/slog"
 	"strings"
 	"time"
 

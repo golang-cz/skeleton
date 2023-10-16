@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"slog"
+	"log/slog"
 
 	"github.com/go-chi/chi/middleware"
 

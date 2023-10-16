@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"time"
 
-	"slog"
+	"log/slog"
 
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/internal/core"
@@ -52,7 +52,7 @@ func main() {
 	signal.Notify(sigs, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	go func() {
 		sig := <-sigs
-		slog.Info("received signal", "signal", sig)
+		slog.Info("received signal", slog.Any("signal", sig))
 		app.Stop(10 * time.Second)
 	}()
 

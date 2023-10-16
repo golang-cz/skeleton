@@ -1,6 +1,6 @@
 module github.com/golang-cz/skeleton
 
-go 1.21.3
+go 1.21.0
 
 require (
 	github.com/BurntSushi/toml v1.2.1

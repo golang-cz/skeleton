@@ -3,7 +3,7 @@ package nats
 import (
 	"errors"
 	"fmt"
-	"slog"
+	"log/slog"
 
 	"github.com/nats-io/nats.go"
 )
