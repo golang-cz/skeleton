@@ -13,14 +13,9 @@ import (
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/pkg/alert"
 	"github.com/golang-cz/skeleton/pkg/slogger"
-	"github.com/golang-cz/skeleton/services/api"
-	"github.com/golang-cz/skeleton/services/api/rest/pprof"
-	"github.com/golang-cz/skeleton/services/api/rest/status"
-	"github.com/golang-cz/skeleton/services/api/rest/user"
-	"github.com/golang-cz/skeleton/services/api/rest/users"
 )
 
-func Router(app *api.API) chi.Router {
+func (s *Server) Router() chi.Router {
 	r := chi.NewRouter()
 
 	r.Use(middleware.NoCache)
@@ -44,12 +39,12 @@ func Router(app *api.API) chi.Router {
 	r.Get("/robots.txt", robots)
 	r.Get("/sentry", sentry)
 	r.Get("/favicon.ico", favicon)
-	r.Mount("/", pprof.Router())
+	r.Mount("/debug/pprof", s.PprofRouter())
 
 	r.Route("/api", func(r chi.Router) {
-		r.Get("/status", status.StatusPage(app))
-		r.Mount("/user", user.Router(app))
-		r.Mount("/users", users.Router(app))
+		r.Get("/status", s.StatusPage)
+		r.Mount("/user", s.UserRouter())
+		r.Mount("/users", s.UsersRouter())
 	})
 
 	return r
