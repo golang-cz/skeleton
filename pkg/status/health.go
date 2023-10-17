@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/golang-cz/skeleton/pkg/nats"
-	"golang.org/x/exp/slog"
+	"log/slog"
 	"strings"
 	"time"
+
+	"github.com/golang-cz/skeleton/pkg/nats"
 
 	natsio "github.com/nats-io/nats.go"
 )

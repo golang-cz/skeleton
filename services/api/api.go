@@ -6,13 +6,14 @@ import (
 	"net/http"
 	"time"
 
+	"log/slog"
+
 	"github.com/golang-cz/skeleton/pkg/events"
 	"github.com/golang-cz/skeleton/pkg/nats"
 	"github.com/golang-cz/skeleton/pkg/slogger"
 	"github.com/golang-cz/skeleton/pkg/status"
 	"github.com/golang-cz/skeleton/pkg/version"
 	"github.com/golang-cz/skeleton/services/api/rest"
-	"golang.org/x/exp/slog"
 
 	"github.com/golang-cz/skeleton/config"
 	data "github.com/golang-cz/skeleton/data/database"
@@ -71,8 +72,8 @@ func New(conf *config.AppConfig) (*API, error) {
 
 func (app *API) Run() error {
 	slog.Info(fmt.Sprintf("API serving at %v", app.Config.Port),
-		"env", app.Config.Environment.String(),
-		"version", version.VERSION,
+		slog.Any("env", app.Config.Environment.String()),
+		slog.Any("version", version.VERSION),
 	)
 
 	err := app.HTTP.ListenAndServe()
@@ -88,7 +89,7 @@ func (app *API) Run() error {
 }
 
 func (app *API) Stop(maxDuration time.Duration) (err error) {
-	slog.Info("API: HTTP server gracefully shutting down..", "maxDuration", maxDuration)
+	slog.Info("API: HTTP server gracefully shutting down..", slog.Any("maxDuration", maxDuration))
 
 	// Unblock app.Run() at the very end (defer calls are executed in LIFO order).
 	defer close(app.shutdownFinished)
@@ -100,9 +101,9 @@ func (app *API) Stop(maxDuration time.Duration) (err error) {
 	start := time.Now()
 	defer func() {
 		if err != nil {
-			slog.Error("API: HTTP server graceful shutdown failed", "duration", time.Since(start), "error", err)
+			slog.Error("API: HTTP server graceful shutdown failed", slog.Any("duration", time.Since(start)), slog.Any("error", err))
 		} else {
-			slog.Info("API: HTTP server graceful shutdown finished", "duration", time.Since(start))
+			slog.Info("API: HTTP server graceful shutdown finished", slog.Any("duration", time.Since(start)))
 		}
 	}()
 

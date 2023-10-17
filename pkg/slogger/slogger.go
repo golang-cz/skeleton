@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"golang.org/x/exp/slog"
+	"log/slog"
 
 	"github.com/golang-cz/skeleton/pkg/version"
 )
@@ -43,11 +43,11 @@ func setDefaultHandler(
 ) *slog.Logger {
 	if production {
 		return slog.New(&defaultHandler{
-			Handler: handlerOptions.NewJSONHandler(os.Stdout).WithAttrs(attrs),
+			Handler: slog.NewJSONHandler(os.Stdout, &handlerOptions).WithAttrs(attrs),
 		})
 	} else {
 		return slog.New(&defaultHandler{
-			Handler: handlerOptions.NewTextHandler(os.Stdout).WithAttrs(attrs),
+			Handler: slog.NewTextHandler(os.Stdout, &handlerOptions).WithAttrs(attrs),
 		})
 	}
 }

@@ -8,8 +8,9 @@ import (
 	"reflect"
 	"time"
 
+	"log/slog"
+
 	"github.com/golang-cz/skeleton/config"
-	"golang.org/x/exp/slog"
 
 	"github.com/nats-io/nats.go"
 )
@@ -46,10 +47,10 @@ func New(service string, conf config.NATSConfig) (*Client, error) {
 			}
 		}),
 		nats.ReconnectHandler(func(nc *nats.Conn) {
-			slog.Info("%s: NATS client reconnected to %+v", service, nc.ConnectedUrl())
+			slog.Info("%s: NATS client reconnected to %+v", slog.String("service", service), slog.String("connected url", nc.ConnectedUrl()))
 		}),
 		nats.ClosedHandler(func(nc *nats.Conn) {
-			slog.Info("%s: NATS client connection closed", service)
+			slog.Info("%s: NATS client connection closed", slog.String("service", service))
 		}),
 	}
 
@@ -107,7 +108,7 @@ func (c *Client) Close() {
 func (c *Client) Publish(subject string, v interface{}) error {
 	// Log alert if message is trying to be published when NATS client is disconnected
 	if !c.NATSConn.IsConnected() {
-		slog.Error("Trying to publish message to subject (%s) but NATS client is disconnected - payload: %+v", subject, v)
+		slog.Error("Trying to publish message to subject (%s) but NATS client is disconnected - payload: %+v", slog.Any("subject", subject), slog.Any("payload", v))
 	}
 
 	var err error
@@ -120,6 +121,9 @@ func (c *Client) Publish(subject string, v interface{}) error {
 			return err
 		}
 		err = c.NATSConn.Publish(subject, b)
+		if err != nil {
+			return fmt.Errorf("error publishing message to %s : %w", subject, err)
+		}
 	}
 
 	if err != nil {
@@ -152,7 +156,7 @@ func processMsg(msgSubject string, msgData []byte, argType reflect.Type, cb inte
 		oPtr = reflect.New(argType.Elem())
 	}
 
-	if msgData != nil && len(msgData) > 0 {
+	if len(msgData) > 0 {
 		err := json.Unmarshal(msgData, oPtr.Interface())
 		if err != nil {
 			return

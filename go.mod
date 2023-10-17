@@ -1,6 +1,6 @@
 module github.com/golang-cz/skeleton
 
-go 1.20
+go 1.21.0
 
 require (
 	github.com/BurntSushi/toml v1.2.1
@@ -13,7 +13,6 @@ require (
 	github.com/pressly/goose/v3 v3.11.2
 	github.com/rs/cors v1.9.0
 	github.com/upper/db/v4 v4.6.0
-	golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53
 )
 
 require (

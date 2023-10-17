@@ -12,8 +12,9 @@ import (
 	"runtime"
 	"time"
 
+	"log/slog"
+
 	"github.com/getsentry/sentry-go"
-	"golang.org/x/exp/slog"
 
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/pkg/version"
