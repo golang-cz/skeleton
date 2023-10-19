@@ -7,9 +7,8 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/upper/db/v4"
-
 	data "github.com/golang-cz/skeleton/data/database"
+	"github.com/upper/db/v4"
 )
 
 func (s *Server) UserRouter() http.Handler {

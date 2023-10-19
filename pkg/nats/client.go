@@ -4,14 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/url"
 	"reflect"
 	"time"
 
-	"log/slog"
-
 	"github.com/golang-cz/skeleton/config"
-
 	"github.com/nats-io/nats.go"
 )
 

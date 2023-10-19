@@ -5,10 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"net/http"
 	"reflect"
-
-	"log/slog"
 
 	"github.com/golang-cz/skeleton/pkg/alert"
 )

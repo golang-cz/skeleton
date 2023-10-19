@@ -3,15 +3,13 @@ package slogger
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
-	"log/slog"
-
 	"github.com/go-chi/chi/middleware"
-
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/internal/sanitize"
 )

@@ -2,15 +2,13 @@ package scheduler
 
 import (
 	"fmt"
-
 	"log/slog"
 
+	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/pkg/events"
 	"github.com/golang-cz/skeleton/pkg/nats"
 	"github.com/golang-cz/skeleton/pkg/slogger"
 	"github.com/golang-cz/skeleton/pkg/status"
-
-	"github.com/golang-cz/skeleton/config"
 )
 
 type Scheduler struct {

@@ -2,11 +2,10 @@ package slogger
 
 import (
 	"errors"
+	"log/slog"
 	"os"
 	"strings"
 	"time"
-
-	"log/slog"
 
 	"github.com/golang-cz/skeleton/pkg/version"
 )

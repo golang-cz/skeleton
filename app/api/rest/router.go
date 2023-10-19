@@ -8,11 +8,10 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/rs/cors"
-
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/pkg/alert"
 	"github.com/golang-cz/skeleton/pkg/slogger"
+	"github.com/rs/cors"
 )
 
 func (s *Server) Router() chi.Router {

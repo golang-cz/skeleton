@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/user"
@@ -12,10 +13,7 @@ import (
 	"runtime"
 	"time"
 
-	"log/slog"
-
 	"github.com/getsentry/sentry-go"
-
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/pkg/version"
 )
