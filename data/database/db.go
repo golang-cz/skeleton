@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/golang-cz/skeleton/config"
 	"github.com/upper/db/v4"
 	"github.com/upper/db/v4/adapter/postgresql"
-
-	"github.com/golang-cz/skeleton/config"
 )
 
 type Database struct {

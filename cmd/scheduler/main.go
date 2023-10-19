@@ -2,14 +2,13 @@ package main
 
 import (
 	"flag"
+	"log"
+	"os"
 
+	"github.com/golang-cz/skeleton/app/scheduler"
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/internal/core"
 	"github.com/golang-cz/skeleton/pkg/version"
-	"github.com/golang-cz/skeleton/services/scheduler"
-
-	"log"
-	"os"
 )
 
 var (

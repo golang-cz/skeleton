@@ -3,9 +3,8 @@ package core
 import (
 	"errors"
 	"fmt"
-	"time"
-
 	"log/slog"
+	"time"
 
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/pkg/alert"

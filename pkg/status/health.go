@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/golang-cz/skeleton/pkg/nats"
-
 	natsio "github.com/nats-io/nats.go"
 )
 

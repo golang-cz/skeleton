@@ -2,10 +2,11 @@ package status
 
 import (
 	"fmt"
-	"github.com/golang-cz/skeleton/pkg/nats"
-	"github.com/golang-cz/skeleton/pkg/version"
 	"os"
 	"runtime"
+
+	"github.com/golang-cz/skeleton/pkg/nats"
+	"github.com/golang-cz/skeleton/pkg/version"
 )
 
 const megaByte = 1 << (10 * 2)

@@ -3,17 +3,16 @@ package main
 import (
 	"flag"
 	"log"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"log/slog"
-
+	"github.com/golang-cz/skeleton/app/api"
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/internal/core"
 	"github.com/golang-cz/skeleton/pkg/version"
-	"github.com/golang-cz/skeleton/services/api"
 )
 
 var (

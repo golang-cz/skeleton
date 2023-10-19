@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-
 	data "github.com/golang-cz/skeleton/data/database"
 )
 
