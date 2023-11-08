@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/golang-cz/skeleton/app/api/rest"
+	"github.com/golang-cz/skeleton/app/api/rpc"
 	"github.com/golang-cz/skeleton/config"
 	data "github.com/golang-cz/skeleton/data/database"
 	"github.com/golang-cz/skeleton/pkg/events"
@@ -15,12 +16,14 @@ import (
 	"github.com/golang-cz/skeleton/pkg/slogger"
 	"github.com/golang-cz/skeleton/pkg/status"
 	"github.com/golang-cz/skeleton/pkg/version"
+	"github.com/golang-cz/skeleton/proto"
 )
 
 type API struct {
 	Config *config.AppConfig
 	DB     *data.Database
 	HTTP   *http.Server
+	RPC    *rpc.Rpc
 
 	shutdownFinished chan struct{}
 }
@@ -43,10 +46,17 @@ func New(conf *config.AppConfig) (*API, error) {
 		slog.Error(slogger.ErrorCause(err).Error())
 	}
 
-	app := &API{
+	rpcSever := &rpc.Rpc{
 		Config: conf,
 		DB:     database,
+	}
 
+	rpcHandler := proto.NewSkeletonServer(rpcSever)
+
+	app := &API{
+		Config:           conf,
+		DB:               database,
+		RPC:              rpcSever,
 		shutdownFinished: make(chan struct{}, 1),
 	}
 
@@ -57,7 +67,7 @@ func New(conf *config.AppConfig) (*API, error) {
 
 	app.HTTP = &http.Server{
 		Addr:              conf.Port,
-		Handler:           restServer.Router(),
+		Handler:           restServer.Router(rpcHandler),
 		IdleTimeout:       60 * time.Second, // idle connections
 		ReadHeaderTimeout: 10 * time.Second, // request header
 		ReadTimeout:       5 * time.Minute,  // request body
