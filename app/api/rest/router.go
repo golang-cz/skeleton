@@ -20,7 +20,7 @@ func (s *Server) Router(rpcServerHandler http.Handler) chi.Router {
 	r.Use(middleware.NoCache)
 	r.Use(middleware.Heartbeat("/ping"))
 	r.Use(middleware.RealIP)
-	r.Use(slogger.SloggerMiddleware)
+	r.Use(slogger.SloggerMiddleware(s.Config))
 	r.Use(middleware.Recoverer)
 
 	corsHandler := cors.New(cors.Options{

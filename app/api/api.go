@@ -20,7 +20,7 @@ import (
 )
 
 type API struct {
-	Config *config.AppConfig
+	Config *config.Config
 	DB     *data.Database
 	HTTP   *http.Server
 	RPC    *rpc.Rpc
@@ -28,7 +28,7 @@ type API struct {
 	shutdownFinished chan struct{}
 }
 
-func New(conf *config.AppConfig) (*API, error) {
+func New(conf *config.Config) (*API, error) {
 	// Database
 	database, err := data.NewDBSession(conf.DB)
 	if err != nil {

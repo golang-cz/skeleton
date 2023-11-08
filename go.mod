@@ -5,9 +5,9 @@ go 1.21.0
 require (
 	github.com/BurntSushi/toml v1.2.1
 	github.com/getsentry/sentry-go v0.21.0
-	github.com/go-chi/chi v1.5.4
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/gofrs/uuid/v5 v5.0.0
+	github.com/golang-cz/devslog v0.0.7
 	github.com/golang-cz/gospeak v0.7.3
 	github.com/google/uuid v1.3.0
 	github.com/lib/pq v1.10.9

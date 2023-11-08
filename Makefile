@@ -36,6 +36,12 @@ tools:
 vendor:
 	go mod tidy && go mod vendor && go mod tidy
 
+config:
+	cp etc/config.sample.toml etc/config.toml
+
+config-to-sample:
+	cp etc/config.toml etc/config.sample.toml
+
 build:
 	$(call build, ./cmd/api ./cmd/goose)
 

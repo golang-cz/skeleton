@@ -12,10 +12,10 @@ import (
 )
 
 type Scheduler struct {
-	Config *config.AppConfig
+	Config *config.Config
 }
 
-func New(conf *config.AppConfig) (*Scheduler, error) {
+func New(conf *config.Config) (*Scheduler, error) {
 	// NATS
 	if _, err := nats.Connect("api", conf.NATS); err != nil {
 		err = fmt.Errorf("failed to connect to NATS server: %w", err)

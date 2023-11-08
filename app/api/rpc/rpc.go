@@ -6,6 +6,6 @@ import (
 )
 
 type Rpc struct {
-	Config *config.AppConfig
+	Config *config.Config
 	DB     *data.Database
 }

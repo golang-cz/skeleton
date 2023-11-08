@@ -15,7 +15,7 @@ import (
 //go:embed migrations/*.sql
 var migrations embed.FS
 
-func RunMigrations(args []string, conf *config.AppConfig) error {
+func RunMigrations(args []string, conf *config.Config) error {
 	db, err := data.NewDBSession(conf.DB)
 	if err != nil {
 		return fmt.Errorf("connect to DB: %w", err)
