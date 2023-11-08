@@ -52,5 +52,14 @@ func NewDBSession(conf config.DBConfig) (*Database, error) {
 
 	db.LC().SetLogger(log.Default())
 
-	return &Database{Session: dbSession}, nil
+	database := initStores(dbSession)
+
+	return database, nil
+}
+
+func initStores(sess db.Session) *Database {
+	return &Database{
+		Session: sess,
+		User:    *Users(sess),
+	}
 }

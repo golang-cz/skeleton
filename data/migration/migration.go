@@ -58,7 +58,7 @@ func RunMigrations(args []string, conf *config.AppConfig) error {
 
 	for {
 		err := goose.Run(cmd, db.Session.Driver().(*sql.DB), dir, args[1:]...)
-		if err == goose.ErrNoNextVersion || err == goose.ErrNoCurrentVersion {
+		if errors.Is(err, goose.ErrNoNextVersion) || errors.Is(err, goose.ErrNoCurrentVersion) {
 			return nil
 		}
 

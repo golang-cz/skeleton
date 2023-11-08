@@ -27,6 +27,9 @@ start: up db-up
 stop: down
 clean: db-reset down
 
+generate:
+	go generate -x ./...
+
 tools:
 	GOFLAGS="" go install github.com/VojtechVitek/rerun/cmd/rerun@latest
 

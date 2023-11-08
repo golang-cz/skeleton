@@ -1,21 +1,28 @@
 package data
 
 import (
-	"time"
-
-	"github.com/google/uuid"
+	"github.com/gofrs/uuid/v5"
+	"github.com/golang-cz/skeleton/proto"
 	"github.com/upper/db/v4"
 )
 
-type UserStore struct {
-	ID        uuid.UUID  `db:"id,omitempty,pk"       json:"id"`
-	Email     string     `db:"email"                 json:"email"`
-	Firstname string     `db:"firstname"             json:"firstname"`
-	Lastname  string     `db:"lastname"              json:"lastname"`
-	CreatedAt *time.Time `db:"created_at"            json:"created_at"`
-	UpdatedAt *time.Time `db:"updated_at, omitempty" json:"updated_at"`
+type User struct {
+	*proto.User
 }
 
-func (user *UserStore) Store(sess db.Session) db.Store {
-	return sess.Collection("users")
+type UserStore struct {
+	db.Collection
+}
+
+func Users(sess db.Session) *UserStore {
+	return &UserStore{sess.Collection("users")}
+}
+
+func (us *UserStore) FindById(id uuid.UUID) (*User, error) {
+	var user *User
+	err := us.Find(db.Cond{"id": id}).One(&user)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }

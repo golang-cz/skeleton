@@ -14,7 +14,7 @@ import (
 	"github.com/rs/cors"
 )
 
-func (s *Server) Router() chi.Router {
+func (s *Server) Router(rpcServerHandler http.Handler) chi.Router {
 	r := chi.NewRouter()
 
 	r.Use(middleware.NoCache)
@@ -42,8 +42,12 @@ func (s *Server) Router() chi.Router {
 
 	r.Route("/api", func(r chi.Router) {
 		r.Get("/status", s.StatusPage)
-		r.Mount("/user", s.UserRouter())
-		r.Mount("/users", s.UsersRouter())
+
+		r.Route("/rpc", func(r chi.Router) {
+			r.Use(stripPrefixBefore("/rpc/"))
+
+			r.HandleFunc("/*", rpcServerHandler.ServeHTTP)
+		})
 	})
 
 	return r
