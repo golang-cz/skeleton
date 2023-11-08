@@ -1,3 +1,4 @@
 etc/config.toml
 vendor
 bin
+.cache

@@ -6,6 +6,6 @@ import (
 )
 
 type Server struct {
-	Config *config.AppConfig
+	Config *config.Config
 	DB     *data.Database
 }

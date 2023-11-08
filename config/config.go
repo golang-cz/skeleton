@@ -7,15 +7,16 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-var App AppConfig
+var App Config
 
 // DebugMode show all http requests which our application does in curl format
 var DebugMode = false
 
-type AppConfig struct {
+type Config struct {
 	AllowedOrigins           []string    `toml:"allowed_origins"`
 	Port                     string      `toml:"bind_address"`
 	DB                       DBConfig    `toml:"db"`
+	Debug                    Debug       `toml:"debug"`
 	Goose                    GooseConfig `toml:"goose"`
 	NATS                     NATSConfig  `toml:"nats"`
 	Sentry                   Sentry      `toml:"sentry"`
@@ -47,6 +48,14 @@ type DBConfig struct {
 	IsMigration bool `yaml:"-"`
 }
 
+type Debug struct {
+	HttpOutgoingRequests bool `toml:"http_outgoing_requests"`
+	HttpRequestBody      bool `toml:"http_request_body"`
+	HttpResponseBody     bool `toml:"http_response_body"`
+	DBQueries            bool `toml:"db_queries"`
+	SchedulerJobs        bool `toml:"scheduler_jobs"`
+}
+
 type GooseConfig struct {
 	Dir    string `toml:"dir"`
 	Driver string `toml:"driver"`
@@ -57,7 +66,7 @@ type NATSConfig struct {
 	Cluster string `toml:"cluster"`
 }
 
-func NewFromReader(content io.Reader) (*AppConfig, error) {
+func NewFromReader(content io.Reader) (*Config, error) {
 	_, err := toml.NewDecoder(content).Decode(&App)
 	if err != nil {
 		return nil, fmt.Errorf("parse config content: %w", err)

@@ -16,6 +16,8 @@ require (
 )
 
 require (
+	github.com/gofrs/uuid/v5 v5.0.0 // indirect
+	github.com/golang-cz/devslog v0.0.7 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.11.0 // indirect
