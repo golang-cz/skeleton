@@ -121,3 +121,15 @@ endef
 
 db-generate-svg-schema:
 	@docker run -it --rm --name skeleton-db-generate-svg-schema -v $(shell pwd):/app -u $(shell id -u):$(shell id -g) -w /app ghcr.io/golang-cz/sql2diagram:latest sql2diagram -schema /app/db/schema.sql > data/schema/schema.svg
+
+docs:
+	@echo make docs-dashboard
+	@echo make godoc
+
+docs-dashboard:
+	@echo http://localhost:8088
+	docker run --rm --name skeleton-docs-api -p 8088:8080 -v $$PWD/proto/docs:/app -e SWAGGER_JSON=/app/skeletonApi.gen.yaml swaggerapi/swagger-ui
+
+godoc:
+	@which pkgsite || go install golang.org/x/pkgsite/cmd/pkgsite@latest
+	pkgsite -http=localhost:9933 -open ./

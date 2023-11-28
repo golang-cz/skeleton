@@ -62,7 +62,7 @@ type LogGroup struct {
 	Transcribe   string `toml:"transcribe"`
 }
 
-// DB represents video database configurations that can be found in config.toml or config.sample.toml
+// DB represents skeleton database configurations that can be found in config.toml or config.sample.toml
 type DB struct {
 	AppName           string `toml:"app_name"`
 	MaxConnectionLife string `toml:"conn_max_lifetime"`

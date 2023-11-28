@@ -36,7 +36,7 @@ func main() {
 		log.Fatalf("load config: %v", err)
 	}
 
-	err = core.SetupApp(conf, "video-migration", version.VERSION)
+	err = core.SetupApp(conf, "skeleton-migration", version.VERSION)
 	if err != nil {
 		log.Fatalf("setup app: %v", err)
 	}

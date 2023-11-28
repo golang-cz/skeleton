@@ -75,8 +75,8 @@ var templateString string = `package data
 
 import (
 	"github.com/upper/db/v4"
-	"github.com/vcilabs/video/pkg/utc"
-	"github.com/vcilabs/video/proto"
+	"github.com/golang-cz/skeleton/pkg/utc"
+	"github.com/golang-cz/skeleton/proto"
 )
 
 type {{.Pascal}} struct {

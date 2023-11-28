@@ -31,7 +31,7 @@ func main() {
 	}
 
 	// Setup application
-	err = core.SetupApp(conf, "video-api", version.VERSION)
+	err = core.SetupApp(conf, "skeleton-api", version.VERSION)
 	if err != nil {
 		log.Fatalf("setup app: %v", err)
 	}

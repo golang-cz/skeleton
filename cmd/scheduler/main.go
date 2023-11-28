@@ -31,7 +31,7 @@ func main() {
 	}
 
 	// Setup application
-	err = core.SetupApp(conf, "video-scheduler", version.VERSION)
+	err = core.SetupApp(conf, "skeleton-scheduler", version.VERSION)
 	if err != nil {
 		log.Fatalf("setup app: %v", err)
 	}
