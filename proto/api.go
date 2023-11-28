@@ -12,7 +12,7 @@ type Skeleton interface {
 	Users
 }
 
-//go:webrpc openapi -title=SkeletonUsersAPI -serverUrl=https://dev.skeleton.com/_api -out=./docs/skeletonUsersApi.gen.yaml
+//go:webrpc openapi -title=SkeletonUsersAPI -serverUrl=https://dev.golang.cz/_api -out=./docs/skeletonUsersApi.gen.yaml
 //go:webrpc typescript -client -out=./client/users/skeletonUsersClient.gen.ts
 type Users interface {
 	GetUser(ctx context.Context, id string) (user *User, err error)

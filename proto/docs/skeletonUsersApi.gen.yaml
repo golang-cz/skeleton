@@ -8,7 +8,7 @@ info:
   title: 'SkeletonUsersAPI'
   version: ''
 servers:
-  - url: 'https://dev.skeleton.com/_api'
+  - url: 'https://dev.golang.cz/_api'
     description: ''
 components:
   schemas:

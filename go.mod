@@ -11,7 +11,6 @@ require (
 	github.com/golang-cz/devslog v0.0.7
 	github.com/golang-cz/gospeak v0.7.3
 	github.com/golang-cz/looper v0.0.3
-	github.com/google/uuid v1.4.0
 	github.com/goware/urlx v0.3.2
 	github.com/lib/pq v1.10.9
 	github.com/mikefarah/yq/v4 v4.40.1
@@ -41,6 +40,7 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-github v17.0.0+incompatible // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/google/uuid v1.4.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
