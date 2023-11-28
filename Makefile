@@ -89,7 +89,7 @@ create-migration: build-goose
 	@./bin/goose -config=./etc/config.toml create $(filter-out $@,$(MAKECMDGOALS))
 
 db-update-schema:
-	@./scripts/pg_dump.sh convo --schema-only | grep -v -e '^--' -e '^COMMENT ON' -e '^REVOKE' -e '^GRANT' -e '^SET' -e 'ALTER DEFAULT PRIVILEGES' -e 'OWNER TO' | cat -s > ./data/schema/schema.sql
+	@./scripts/pg_dump.sh skeleton --schema-only | grep -v -e '^--' -e '^COMMENT ON' -e '^REVOKE' -e '^GRANT' -e '^SET' -e 'ALTER DEFAULT PRIVILEGES' -e 'OWNER TO' | cat -s > ./data/schema/schema.sql
 
 db-up: build-goose
 	@./bin/goose -config=./etc/config.toml up
@@ -118,3 +118,6 @@ endef
 define run
 	rerun -watch ./ -ignore vendor bin tests data/schema *.sqlc $$(ls -d data/emails/templates/* ) $$(ls -d cmd/* | grep -v $(1)) -run sh -c 'GOGC=off go build -o ./bin/$(1) ./cmd/$(1)/main.go && ./bin/$(1) -config=etc/dev.toml'
 endef
+
+db-generate-svg-schema:
+	@docker run -it --rm --name skeleton-db-generate-svg-schema -v $(shell pwd):/app -u $(shell id -u):$(shell id -g) -w /app ghcr.io/golang-cz/sql2diagram:latest sql2diagram -schema /app/db/schema.sql > data/schema/schema.svg
