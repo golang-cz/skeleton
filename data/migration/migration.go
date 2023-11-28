@@ -6,10 +6,11 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/golang-cz/skeleton/config"
-	data "github.com/golang-cz/skeleton/data/database"
 	"github.com/lib/pq"
 	"github.com/pressly/goose/v3"
+
+	"github.com/golang-cz/skeleton/config"
+	"github.com/golang-cz/skeleton/data"
 )
 
 //go:embed migrations/*.sql

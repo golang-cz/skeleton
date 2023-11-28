@@ -1,13 +1,12 @@
 package nats
 
 import (
-	"github.com/golang-cz/skeleton/config"
 	"github.com/nats-io/nats.go"
+
+	"github.com/golang-cz/skeleton/config"
 )
 
-var (
-	DefaultClient NATSClient = &nopClient{}
-)
+var DefaultClient NATSClient = &nopClient{}
 
 type NATSClient interface {
 	Conn() *nats.Conn
@@ -23,7 +22,7 @@ type NATSClient interface {
 	Subscribe(subject string, payload interface{}) error
 }
 
-func Connect(service string, conf config.NATSConfig) (*Client, error) {
+func Connect(service string, conf config.NATS) (*Client, error) {
 	client, err := New(service, conf)
 	if err != nil {
 		return nil, err

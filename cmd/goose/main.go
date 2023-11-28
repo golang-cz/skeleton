@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -31,27 +30,15 @@ func main() {
 		flags.Usage()
 		return
 	}
-
-	file, err := os.Open(*confFile)
+	// Load and parse config file
+	conf, err := config.NewFromReader(*confFile)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("load config: %v", err)
 	}
 
-	// Parse config file.
-	conf, err := config.NewFromReader(file)
+	err = core.SetupApp(conf, "video-migration", version.VERSION)
 	if err != nil {
-		log.Fatal(err)
-	}
-
-	if conf == nil {
-		log.Fatal(errors.New("failed to unmarshal config"))
-	}
-
-	conf.DB.IsMigration = true
-
-	err = core.SetupApp(conf, "Skeleton-Migration", version.VERSION)
-	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("setup app: %v", err)
 	}
 
 	err = migration.RunMigrations(args, conf)

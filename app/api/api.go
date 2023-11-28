@@ -10,7 +10,7 @@ import (
 	"github.com/golang-cz/skeleton/app/api/rest"
 	"github.com/golang-cz/skeleton/app/api/rpc"
 	"github.com/golang-cz/skeleton/config"
-	data "github.com/golang-cz/skeleton/data/database"
+	"github.com/golang-cz/skeleton/data"
 	"github.com/golang-cz/skeleton/pkg/events"
 	"github.com/golang-cz/skeleton/pkg/nats"
 	"github.com/golang-cz/skeleton/pkg/slogger"
@@ -28,7 +28,7 @@ type API struct {
 	shutdownFinished chan struct{}
 }
 
-func New(conf *config.Config) (*API, error) {
+func New(ctx context.Context, conf *config.Config) (*API, error) {
 	// Database
 	database, err := data.NewDBSession(conf.DB)
 	if err != nil {

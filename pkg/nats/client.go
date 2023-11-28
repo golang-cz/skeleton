@@ -9,8 +9,9 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/golang-cz/skeleton/config"
 	"github.com/nats-io/nats.go"
+
+	"github.com/golang-cz/skeleton/config"
 )
 
 type Client struct {
@@ -23,7 +24,7 @@ type Client struct {
 	natsSubs []*nats.Subscription
 }
 
-func New(service string, conf config.NATSConfig) (*Client, error) {
+func New(service string, conf config.NATS) (*Client, error) {
 	_, err := url.Parse(conf.Server)
 	if err != nil {
 		return nil, err

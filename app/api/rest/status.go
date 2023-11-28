@@ -7,10 +7,11 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/upper/db/v4"
+
 	"github.com/golang-cz/skeleton/pkg/events"
 	"github.com/golang-cz/skeleton/pkg/status"
 	"github.com/golang-cz/skeleton/pkg/ws"
-	"github.com/upper/db/v4"
 )
 
 type probe struct {
@@ -85,7 +86,7 @@ func run(ctx context.Context, probes []probe) []result {
 
 			results[i] = result{
 				Key:    p.Key,
-				Result: p.Probe.Run(ctx),
+				Result: p.Run(ctx),
 			}
 		}()
 	}

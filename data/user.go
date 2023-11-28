@@ -2,8 +2,9 @@ package data
 
 import (
 	"github.com/gofrs/uuid/v5"
-	"github.com/golang-cz/skeleton/proto"
 	"github.com/upper/db/v4"
+
+	"github.com/golang-cz/skeleton/proto"
 )
 
 type User struct {

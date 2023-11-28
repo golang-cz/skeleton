@@ -30,7 +30,7 @@ func (e Environment) IsLocal() bool {
 // IsDevlabs reports whether the current environment is on aws devlabs.
 func (e Environment) IsDevlabs() bool {
 	switch e {
-	case EnvDEV1, EnvDEV2, EnvSIT1:
+	case EnvDEV1:
 		return true
 	default:
 		return false
@@ -40,7 +40,7 @@ func (e Environment) IsDevlabs() bool {
 // IsProduction reports whether the current environment is production.
 func (e Environment) IsProduction() bool {
 	switch e {
-	case EnvNA1, EnvNA2, EnvEU1, EnvEU2, EnvAP2, EnvAP3:
+	case EnvEU1:
 		return true
 	default:
 		return false
