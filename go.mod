@@ -10,6 +10,7 @@ require (
 	github.com/golang-cz/devslog v0.0.7
 	github.com/golang-cz/gospeak v0.7.3
 	github.com/google/uuid v1.3.0
+	github.com/goware/urlx v0.3.2
 	github.com/lib/pq v1.10.9
 	github.com/mikefarah/yq/v4 v4.40.1
 	github.com/nats-io/nats.go v1.25.0
@@ -20,6 +21,8 @@ require (
 
 require (
 	github.com/Microsoft/go-winio v0.6.1 // indirect
+	github.com/PuerkitoBio/purell v1.1.1 // indirect
+	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/a8m/envsubst v1.4.2 // indirect
 	github.com/alecthomas/participle/v2 v2.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect

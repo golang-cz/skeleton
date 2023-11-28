@@ -16,7 +16,7 @@ type Database struct {
 	User UserStore
 }
 
-func NewDBSession(conf config.DBConfig) (*Database, error) {
+func NewDBSession(conf config.DB) (*Database, error) {
 	if conf.Host == "" {
 		return nil, errors.New("failed to connect to DB: no host")
 	}

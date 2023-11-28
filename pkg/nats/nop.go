@@ -18,12 +18,16 @@ func (c *nopClient) Ping() error { return errors.New("nats: nop") }
 
 func (c *nopClient) Stats() nats.Statistics { return nats.Statistics{} }
 
-func (c *nopClient) Unsubscribe() { return }
+func (c *nopClient) Unsubscribe() {}
 
-func (c *nopClient) Close() { return }
+func (c *nopClient) Close() {}
 
 func (c *nopClient) Publish(subject string, v interface{}) error {
-	err := fmt.Errorf("Trying to publish message to subject (%s) but NATS client is disconnected - payload: %+v", subject, v)
+	err := fmt.Errorf(
+		"trying to publish message to subject (%s) but NATS client is disconnected - payload: %+v",
+		subject,
+		v,
+	)
 	if c.Alert {
 		slog.Error(err.Error())
 	} else {

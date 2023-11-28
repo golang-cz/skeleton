@@ -2,50 +2,28 @@ package config
 
 import (
 	"fmt"
-	"io"
+	"os"
 
 	"github.com/BurntSushi/toml"
 )
 
-var App Config
-
-// DebugMode show all http requests which our application does in curl format
-var DebugMode = false
-
 type Config struct {
 	AllowedOrigins           []string    `toml:"allowed_origins"`
-	Port                     string      `toml:"bind_address"`
-	DB                       DBConfig    `toml:"db"`
-	Debug                    Debug       `toml:"debug"`
-	Goose                    GooseConfig `toml:"goose"`
-	NATS                     NATSConfig  `toml:"nats"`
-	Sentry                   Sentry      `toml:"sentry"`
-	Environment              Environment `toml:"environment"`
 	DisableHandlerSuccessLog bool        `toml:"disable_handler_success_log"`
-}
+	Environment              Environment `toml:"environment"`
+	Port                     string      `toml:"bind_address"`
+	BaseUrl                  string      `toml:"base_url"`
 
-type Sentry struct {
-	DSN string `toml:"dsn"`
-}
-
-// DBConfig represents the convo database configurations that can be found in config.toml or config.sample.toml
-type DBConfig struct {
-	AppName           string `toml:"app_name"`
-	MaxConnectionLife string `toml:"conn_max_lifetime"`
-	ConnectionTimeout int    `toml:"connect_timeout"`
-	Database          string `toml:"database"`
-	DebugQueries      bool   `toml:"debug_queries"`
-	Host              string `toml:"host"`
-	MaxIdleConns      int    `toml:"max_idle_conns"`
-	MaxOpenConns      int    `toml:"max_open_conns"`
-	ReadOnly          bool   `toml:"read_only"`
-	Username          string `toml:"username"`
-	Password          string `toml:"password"`
-	SSLMode           string `toml:"sslmode"`
-	ReportQueryErrors bool   `toml:"report_query_errors"`
-
-	// IsMigration should be updated at runtime, used by goose migrations
-	IsMigration bool `yaml:"-"`
+	// Subgroups
+	AWS        AWS        `toml:"aws"`
+	DB         DB         `toml:"db"`
+	Debug      Debug      `toml:"debug"`
+	StatusPage StatusPage `toml:"status_page"`
+	Looper     Looper     `toml:"looper"`
+	Goose      Goose      `toml:"goose"`
+	NATS       NATS       `toml:"nats"`
+	Redis      Redis      `toml:"redis"`
+	Sentry     Sentry     `toml:"sentry"`
 }
 
 type Debug struct {
@@ -56,21 +34,99 @@ type Debug struct {
 	SchedulerJobs        bool `toml:"scheduler_jobs"`
 }
 
-type GooseConfig struct {
+type AWS struct {
+	Region     string     `toml:"region"`
+	S3         S3         `toml:"s3"`
+	CloudWatch CloudWatch `toml:"cloud_watch"`
+}
+
+type S3 struct {
+	Bucket     string `toml:"bucket"`
+	Cloudfront string `toml:"cloudfront"`
+	KMSKey     string `toml:"kms_key"`
+}
+
+type MediaConvert struct {
+	Role     string `toml:"role"`
+	Queue    string `toml:"queue"`
+	Endpoint string `toml:"endpoint"`
+}
+
+type CloudWatch struct {
+	LogGroup LogGroup `toml:"log_group"`
+}
+
+type LogGroup struct {
+	IVS          string `toml:"ivs"`
+	MediaConvert string `toml:"media_convert"`
+	Transcribe   string `toml:"transcribe"`
+}
+
+// DB represents video database configurations that can be found in config.toml or config.sample.toml
+type DB struct {
+	AppName           string `toml:"app_name"`
+	MaxConnectionLife string `toml:"conn_max_lifetime"`
+	ConnectionTimeout int    `toml:"connect_timeout"`
+	Database          string `toml:"database"`
+	Host              string `toml:"host"`
+	MaxIdleConns      int    `toml:"max_idle_conns"`
+	MaxOpenConns      int    `toml:"max_open_conns"`
+	ReadOnly          bool   `toml:"read_only"`
+	Username          string `toml:"username"`
+	Password          string `toml:"password"`
+	SSLMode           string `toml:"sslmode"`
+	ReportQueryErrors bool   `toml:"report_query_errors"`
+}
+
+type StatusPage struct {
+	OrgId  string `toml:"org_id"`
+	UserID string `toml:"user_id"`
+}
+
+type Looper struct {
+	Interval       Duration `toml:"interval"`
+	WaitAfterError Duration `toml:"wait_after_error"`
+	JobTimeout     Duration `toml:"job_timeout"`
+}
+
+type Goose struct {
 	Dir    string `toml:"dir"`
 	Driver string `toml:"driver"`
 }
 
-type NATSConfig struct {
+type NATS struct {
 	Server  string `toml:"server"`
 	Cluster string `toml:"cluster"`
 }
 
-func NewFromReader(content io.Reader) (*Config, error) {
-	_, err := toml.NewDecoder(content).Decode(&App)
+type Redis struct {
+	Host string `toml:"host"`
+}
+
+type Sentry struct {
+	DSN string `toml:"dsn"`
+}
+
+func NewFromReader(confFile string) (*Config, error) {
+	file, err := os.Open(confFile)
+	if err != nil {
+		return nil, fmt.Errorf("read config file: %w", err)
+	}
+
+	var conf Config
+	_, err = toml.NewDecoder(file).Decode(&conf)
 	if err != nil {
 		return nil, fmt.Errorf("parse config content: %w", err)
 	}
 
-	return &App, nil
+	err = validate(&conf)
+	if err != nil {
+		return nil, fmt.Errorf("validate config: %w", err)
+	}
+
+	return &conf, nil
+}
+
+func validate(conf *Config) (err error) {
+	return nil
 }
