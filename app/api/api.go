@@ -11,6 +11,7 @@ import (
 	"github.com/golang-cz/skeleton/app/api/rpc"
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/data"
+	"github.com/golang-cz/skeleton/internal/reqctx"
 	"github.com/golang-cz/skeleton/pkg/events"
 	"github.com/golang-cz/skeleton/pkg/nats"
 	"github.com/golang-cz/skeleton/pkg/slogger"
@@ -52,6 +53,14 @@ func New(ctx context.Context, conf *config.Config) (*API, error) {
 	}
 
 	rpcHandler := proto.NewSkeletonServer(rpcServer)
+	rpcHandler.OnError = func(r *http.Request, rpcErr *proto.WebRPCError) {
+		ctx := r.Context()
+		reqctx.AddAttr(ctx, "webrpcError", rpcErr)
+
+		if conf.Environment.IsProduction() {
+			rpcErr.Cause = "" // Hide error details in production.
+		}
+	}
 
 	restServer := &rest.Server{
 		Config: conf,
