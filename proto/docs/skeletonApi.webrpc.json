@@ -1,0 +1,147 @@
+{
+ "webrpc": "v1",
+ "name": "Skeleton",
+ "version": "",
+ "types": [
+  {
+   "kind": "struct",
+   "name": "User",
+   "fields": [
+    {
+     "name": "id",
+     "type": "string",
+     "meta": [
+      {
+       "go.field.name": "ID"
+      },
+      {
+       "go.field.type": "uuid.UUID"
+      },
+      {
+       "go.type.import": "github.com/gofrs/uuid/v5"
+      },
+      {
+       "go.tag.json": "id"
+      }
+     ]
+    },
+    {
+     "name": "email",
+     "type": "string",
+     "meta": [
+      {
+       "go.field.name": "Email"
+      },
+      {
+       "go.field.type": "string"
+      },
+      {
+       "go.tag.json": "email"
+      }
+     ]
+    },
+    {
+     "name": "firstname",
+     "type": "string",
+     "meta": [
+      {
+       "go.field.name": "Firstname"
+      },
+      {
+       "go.field.type": "string"
+      },
+      {
+       "go.tag.json": "firstname"
+      }
+     ]
+    },
+    {
+     "name": "lastname",
+     "type": "string",
+     "meta": [
+      {
+       "go.field.name": "Lastname"
+      },
+      {
+       "go.field.type": "string"
+      },
+      {
+       "go.tag.json": "lastname"
+      }
+     ]
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp",
+     "meta": [
+      {
+       "go.field.name": "CreatedAt"
+      },
+      {
+       "go.field.type": "time.Time"
+      },
+      {
+       "go.tag.json": "created_at"
+      }
+     ]
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp",
+     "meta": [
+      {
+       "go.field.name": "UpdatedAt"
+      },
+      {
+       "go.field.type": "time.Time"
+      },
+      {
+       "go.tag.json": "updated_at"
+      }
+     ]
+    },
+    {
+     "name": "deleted_at",
+     "type": "timestamp",
+     "optional": true,
+     "meta": [
+      {
+       "go.field.name": "DeletedAt"
+      },
+      {
+       "go.field.type": "*time.Time"
+      },
+      {
+       "go.tag.json": "deleted_at"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "errors": null,
+ "services": [
+  {
+   "name": "Skeleton",
+   "methods": [
+    {
+     "name": "GetUser",
+     "inputs": [
+      {
+       "name": "id",
+       "type": "string",
+       "optional": false
+      }
+     ],
+     "outputs": [
+      {
+       "name": "user",
+       "type": "User",
+       "optional": false
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
