@@ -1,0 +1,24 @@
+#!/bin/bash
+
+commit_msg_filepath="$1"
+
+regex="(^SKL-[0-9]{1,5})"
+branch=$(git symbolic-ref --short --quiet HEAD)
+shortBranch=$(echo $branch | grep -oE $regex)
+
+if [ $? -ne 0 ]; then
+	echo "Not on branch, exiting prepare-commit-msg hook"
+	exit 0
+fi
+
+if [[ $shortBranch =~ $regex ]]; then
+	ticketNumber="${BASH_REMATCH[1]}"
+	if [[ $(cat "$commit_msg_filepath") =~ $regex ]]; then
+		echo "Card already referenced in commit, exiting prepare-commit-msg hook"
+		exit 0
+	fi
+	echo "$ticketNumber: $(cat "$commit_msg_filepath")" >"$commit_msg_filepath"
+elif [ "$branch" != "master" ]; then
+	echo "Incorrect branch name: \"$branch\" could not parse number of Jira ticket"
+	exit 1
+fi
