@@ -11,10 +11,10 @@ services:
       - "postgres15-data:/var/lib/postgresql/data/:rw"
     restart: always
   nats:
-      image: nats:2.9
-      restart: always
-      ports:
-        - 4222:4222
+    image: nats:2.9
+    restart: always
+    ports:
+      - 4222:4222
 #  skeleton:
 #    build: .
 #    container_name: skeleton
