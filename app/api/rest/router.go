@@ -18,7 +18,7 @@ func (s *Server) Router(rpcServerHandler http.Handler) chi.Router {
 	r := chi.NewRouter()
 
 	r.Use(middleware.NoCache)
-	r.Use(middleware.Heartbeat("/ping"))
+	r.Use(middleware.Heartbeat("/_api/ping"))
 	r.Use(middleware.RealIP)
 	r.Use(slogger.SloggerMiddleware(s.Config))
 	r.Use(middleware.Recoverer)

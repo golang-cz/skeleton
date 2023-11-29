@@ -69,52 +69,6 @@
        "go.tag.json": "lastname"
       }
      ]
-    },
-    {
-     "name": "created_at",
-     "type": "timestamp",
-     "meta": [
-      {
-       "go.field.name": "CreatedAt"
-      },
-      {
-       "go.field.type": "time.Time"
-      },
-      {
-       "go.tag.json": "created_at"
-      }
-     ]
-    },
-    {
-     "name": "updated_at",
-     "type": "timestamp",
-     "meta": [
-      {
-       "go.field.name": "UpdatedAt"
-      },
-      {
-       "go.field.type": "time.Time"
-      },
-      {
-       "go.tag.json": "updated_at"
-      }
-     ]
-    },
-    {
-     "name": "deleted_at",
-     "type": "timestamp",
-     "optional": true,
-     "meta": [
-      {
-       "go.field.name": "DeletedAt"
-      },
-      {
-       "go.field.type": "*time.Time"
-      },
-      {
-       "go.tag.json": "deleted_at"
-      }
-     ]
     }
    ]
   }

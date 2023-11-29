@@ -1,0 +1,85 @@
+bind_address = ":7081"
+environment = "test"
+
+[alida]
+    cpm_base_url = "https://sit1.alidalabs.com/c/services/api/v1"
+    # Identity Management Service https://alidacxm.atlassian.net/wiki/spaces/EN/pages/1332019201/Users+API
+    ims_hostname = "int-ims.sit1.vcilabs.com"
+    tm_base_url = "https://login.sit1.vcilabs.com/tm/api/v1/"
+    [alida.tas]
+        text_analytics_base_url="https://cdm-textanalytics.sit1.alidalabs.com/api/v1"
+        default_language="en"
+        engine="IBM"
+        email = "cpmadmin@visioncritical.com"
+        user_id = "a133c891-ff17-402b-8b9e-e254338adfee"
+    [alida.auth]
+        api_keys = "hvjF3NhmPKWJ8M8cXZzwaVcS4NGXDcsR|hvjF3NhmPKWJ8M8cXZzwaVcS4NGXDcsR|bUHAedwpzjdKW2Z85PMdmoFe54r81121"
+        jwks_url = "https://login.sit1.vcilabs.com/login/idp/.well-known/jwks"
+
+[aws] # creds from env
+    region = "us-west-2"
+    [aws.ivs]
+        type = "STANDARD"
+        recording_configuration = "arn:aws:ivs:us-west-2:881299141635:recording-configuration/JP9DWsJVq9mH"
+        bucket = "video-dev-0"
+        cloudfront = "https://video-storage.sit1.alidalabs.com"
+        max_channel_lifetime = "24h"
+    [aws.s3]
+        bucket = "video-dev-0"
+        cloudfront = "https://video-storage.sit1.alidalabs.com"
+        kms_key = "6b243c84-8fa5-49f3-b08a-75c482b2dc16"
+    [aws.cloud_watch]
+        [aws.cloud_watch.log_group]
+            ivs = "/aws/events/video-dev-0-ivs"
+            media_convert = "/aws/events/video-dev-0-mediaconvert"
+            transcribe = "/aws/events/video-dev-0-transcribe"
+    [aws.mediaconvert]
+        role = "arn:aws:iam::881299141635:role/service-role/MediaConvert_Default_Role"
+        queue = ""
+        endpoint = "https://hvtjrir1c.mediaconvert.us-west-2.amazonaws.com"
+
+[db]
+    app_name = "video"
+    conn_max_lifetime = "1800s"
+    connect_timeout = 5
+    database = "video_e2e"
+    host = "postgres:5432" # Devbox: https://github.com/vcilabs/devbox/blob/master/docker-compose.backend.yml
+    max_idle_conns = 10
+    max_open_conns = 100
+    read_only = false
+    report_query_errors = true
+    sslmode = "disable"
+    username = "devbox"
+    password = ""
+
+[looper]
+    interval = "500ms"
+    wait_after_error = "10s"
+    job_timeout = "1m"
+
+[status_page]
+    applicationId = "77aa645f-4642-49c8-8f49-adef017dcba6"
+    userId = "c0b128d6-d030-4efa-adaa-b03401115e4e" # change to cpmadmin
+
+[monitoring_page]
+    time_since_last_update_threshold = "10m"
+
+[goose]
+    dir = "./data/migration/migrations"
+    driver = "postgres"
+
+[nats]
+    server = "nats://nats:4222" # Devbox: https://github.com/vcilabs/devbox/blob/master/docker-compose.backend.yml
+
+[recorder]
+    min_recording_time = 10
+    max_recording_time = 3600
+
+[redis]
+    host = "127.0.0.1:63790" # Devbox: https://github.com/vcilabs/devbox/blob/master/docker-compose.backend.yml
+
+[sentry]
+    dsn = "" # "https://123@abc.ingest.sentry.io/123"
+
+[showreel]
+    presign_expiration = "30m"

@@ -1,4 +1,4 @@
-.PHONY: all run test build build-all vendor
+.PHONY: all run test build build-all vendor config
 
 SHELL=bash -o pipefail -e
 GOBIN ?= $$PWD/bin
@@ -187,18 +187,17 @@ db-reset:
 	db.sh drop skeleton
 	@$(MAKE) db-create
 	@$(MAKE) db-up
-	@$(MAKE) db-generate-svg-schema
 
 db-create:
 	db.sh create skeleton
 
 
 db-generate-svg-schema:
-	@docker run -it --rm --name skeleton-db-generate-svg-schema -v $(shell pwd):/app -u $(shell id -u):$(shell id -g) -w /app ghcr.io/golang-cz/sql2diagram:latest sql2diagram -schema /app/db/schema.sql > data/schema/schema.svg
+	@docker run -it --rm --name skeleton-db-generate-svg-schema -v $(shell pwd):/app -u $(shell id -u):$(shell id -g) -w /app ghcr.io/golang-cz/sql2diagram:latest sql2diagram -schema /app/db/schema.sql > db/schema.svg
 
 generate:
 	go generate -x ./...
-	sed -i '/^type .* struct {$$/ s/\.//g' ./proto/clients/skeleton/skeletonClient.gen.go
+	# sed -i '/^type .* struct {$$/ s/\.//g' ./proto/clients/skeleton/skeletonClient.gen.go
 	
 docs:
 	@echo make docs-users

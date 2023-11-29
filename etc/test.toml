@@ -1,21 +1,11 @@
-bind_address = ":7088"
-environment = "local"
-disable_handler_success_log = false
-base_url = "https://skeleton.dev.golang.cz"
-
-[debug]
-    http_outgoing_requests = false
-    http_request_body = false
-    http_response_body = false
-    db_queries = false
-    scheduler_jobs = false
-
+bind_address = ":7081"
+environment = "test"
 
 [db]
     app_name = "skeleton"
     conn_max_lifetime = "1800s"
     connect_timeout = 5
-    database = "skeleton"
+    database = "skeleton_e2e"
     host = "127.0.0.1:54320" # Devbox: https://github.com/vcilabs/devbox/blob/master/docker-compose.backend.yml
     max_idle_conns = 10
     max_open_conns = 100
@@ -40,7 +30,6 @@ base_url = "https://skeleton.dev.golang.cz"
 
 [nats]
     server = "nats://localhost:42220" # Devbox: https://github.com/vcilabs/devbox/blob/master/docker-compose.backend.yml
-    cluster = "dev"
 
 [redis]
     host = "127.0.0.1:63790" # Devbox: https://github.com/vcilabs/devbox/blob/master/docker-compose.backend.yml
