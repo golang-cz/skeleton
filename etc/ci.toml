@@ -6,7 +6,7 @@ environment = "test"
     conn_max_lifetime = "1800s"
     connect_timeout = 5
     database = "skeleton_e2e"
-    host = "postgres:5432" # Devbox: https://github.com/vcilabs/devbox/blob/master/docker-compose.backend.yml
+    host = "postgres:5432" 
     max_idle_conns = 10
     max_open_conns = 100
     read_only = false
@@ -29,10 +29,10 @@ environment = "test"
     driver = "postgres"
 
 [nats]
-    server = "nats://nats:4222" # Devbox: https://github.com/vcilabs/devbox/blob/master/docker-compose.backend.yml
+    server = "nats://nats:4222" 
 
 [redis]
-    host = "127.0.0.1:63790" # Devbox: https://github.com/vcilabs/devbox/blob/master/docker-compose.backend.yml
+    host = "127.0.0.1:63790" 
 
 [sentry]
     dsn = "" # "https://123@abc.ingest.sentry.io/123"

@@ -5,7 +5,7 @@ GOBIN ?= $$PWD/bin
 
 export GOFLAGS=-mod=vendor
 export CGO_ENABLED=0
-export GOPRIVATE=github.com/vcilabs
+export GOPRIVATE=github.com/golang-cz
 
 all:
 	@echo "  run-api          - run Skeleton API in dev mode"

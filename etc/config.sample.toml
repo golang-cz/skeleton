@@ -16,7 +16,7 @@ base_url = "https://skeleton.dev.golang.cz"
     conn_max_lifetime = "1800s"
     connect_timeout = 5
     database = "skeleton"
-    host = "127.0.0.1:54320" # Devbox: https://github.com/vcilabs/devbox/blob/master/docker-compose.backend.yml
+    host = "127.0.0.1:54320" 
     max_idle_conns = 10
     max_open_conns = 100
     read_only = false
@@ -39,11 +39,11 @@ base_url = "https://skeleton.dev.golang.cz"
     driver = "postgres"
 
 [nats]
-    server = "nats://localhost:42220" # Devbox: https://github.com/vcilabs/devbox/blob/master/docker-compose.backend.yml
+    server = "nats://localhost:42220" 
     cluster = "dev"
 
 [redis]
-    host = "127.0.0.1:63790" # Devbox: https://github.com/vcilabs/devbox/blob/master/docker-compose.backend.yml
+    host = "127.0.0.1:63790" 
 
 [sentry]
     dsn = "" # "https://123@abc.ingest.sentry.io/123"
