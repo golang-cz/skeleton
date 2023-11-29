@@ -40,7 +40,7 @@ func (s *Server) Router(rpcServerHandler http.Handler) chi.Router {
 	r.Get("/favicon.ico", favicon)
 	r.Mount("/debug/pprof", s.PprofRouter())
 
-	r.Route("/api", func(r chi.Router) {
+	r.Route("/_api", func(r chi.Router) {
 		r.Get("/status", s.StatusPage)
 
 		r.Route("/rpc", func(r chi.Router) {
