@@ -34,8 +34,8 @@ jobs:
           go-version: "1.21"
       - name: Run go tests
         run: |
-          go install github.com/mfridman/tparse@latest 
-          set -o pipefail && DIR=$PWD go test -parallel 1 ./... -json | tparse -all
+          # go install github.com/mfridman/tparse@latest 
+          set -o pipefail && DIR=$PWD go test -parallel 1 ./... -json # | tparse -all
       - name: Static analysis check
         uses: addnab/docker-run-action@v3
         with:
