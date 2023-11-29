@@ -211,3 +211,6 @@ docs-users:
 godoc:
 	@which pkgsite || go install golang.org/x/pkgsite/cmd/pkgsite@latest
 	pkgsite -http=localhost:9933 -open ./
+
+datatype:
+	@go run ./scripts/generators/datatype/datatype.go $(filter-out $@,$(MAKECMDGOALS))
