@@ -14,8 +14,8 @@ jobs:
       postgres:
         image: postgres:15.3
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: pass
+          POSTGRES_USER: devbox
+          POSTGRES_HOST_AUTH_METHOD: trust
         ports:
           - "5432:5432"
     steps:
@@ -34,6 +34,7 @@ jobs:
           go-version: "1.21"
       - name: Run go tests
         run: |
+          cp ./etc/ci.toml ./etc/test.toml
           # go install github.com/mfridman/tparse@latest 
           set -o pipefail && DIR=$PWD go test -parallel 1 ./... -json # | tparse -all
       - name: Static analysis check
