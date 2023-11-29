@@ -27,7 +27,7 @@ type Client struct {
 func New(service string, conf config.NATS) (*Client, error) {
 	_, err := url.Parse(conf.Server)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("init nats client: %w", err)
 	}
 
 	if service == "" {
@@ -46,10 +46,10 @@ func New(service string, conf config.NATS) (*Client, error) {
 			}
 		}),
 		nats.ReconnectHandler(func(nc *nats.Conn) {
-			slog.Info("%s: NATS client reconnected to %+v", slog.String("service", service), slog.String("connected url", nc.ConnectedUrl()))
+			slog.Info(fmt.Sprintf("%s: NATS client reconnected to %+v", service, nc.ConnectedUrl()))
 		}),
 		nats.ClosedHandler(func(nc *nats.Conn) {
-			slog.Info("%s: NATS client connection closed", slog.String("service", service))
+			slog.Info(fmt.Sprintf("%s: NATS client connection closed", service))
 		}),
 	}
 
@@ -107,7 +107,7 @@ func (c *Client) Close() {
 func (c *Client) Publish(subject string, v interface{}) error {
 	// Log alert if message is trying to be published when NATS client is disconnected
 	if !c.NATSConn.IsConnected() {
-		slog.Error("Trying to publish message to subject (%s) but NATS client is disconnected - payload: %+v", slog.Any("subject", subject), slog.Any("payload", v))
+		slog.Error(fmt.Sprintf("Trying to publish message to subject (%s) but NATS client is disconnected - payload: %+v", subject, v))
 	}
 
 	var err error
@@ -115,18 +115,16 @@ func (c *Client) Publish(subject string, v interface{}) error {
 	case []byte:
 		err = c.NATSConn.Publish(subject, data)
 	default:
-		b, err := json.Marshal(v)
+		var b []byte
+		b, err = json.Marshal(v)
 		if err != nil {
-			return err
+			return fmt.Errorf("marshal: %w", err)
 		}
 		err = c.NATSConn.Publish(subject, b)
-		if err != nil {
-			return fmt.Errorf("error publishing message to %s : %w", subject, err)
-		}
 	}
 
 	if err != nil {
-		return fmt.Errorf("error publishing message to %s : %w", subject, err)
+		return fmt.Errorf("publishing message to %s : %w", subject, err)
 	}
 
 	return nil
@@ -136,14 +134,18 @@ func (c *Client) Subscribe(subj string, cb interface{}) error {
 	// check if callback is valid, expects to be a function with two arguments
 	// eg; func PostPublished(subject string, post *presenter.Post)
 	argType, _, err := argInfo(cb)
-	if err != nil || argType == nil {
+	if err != nil {
 		return fmt.Errorf("invalid argument type for callback: %w", err)
 	}
 
 	_, err = c.NATSConn.Subscribe(subj, func(msg *nats.Msg) {
 		processMsg(msg.Subject, msg.Data, argType, cb)
 	})
-	return err
+	if err != nil {
+		return fmt.Errorf("subscribe to subject %q: %w", subj, err)
+	}
+
+	return nil
 }
 
 // Process NATS published message and unmarshal data into callback argument

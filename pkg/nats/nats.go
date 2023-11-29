@@ -1,6 +1,8 @@
 package nats
 
 import (
+	"fmt"
+
 	"github.com/nats-io/nats.go"
 
 	"github.com/golang-cz/skeleton/config"
@@ -38,7 +40,11 @@ func Conn() *nats.Conn {
 }
 
 func Ping() error {
-	return DefaultClient.Ping()
+	err := DefaultClient.Ping()
+	if err != nil {
+		return fmt.Errorf("nats ping: %w", err)
+	}
+	return nil
 }
 
 func Stats() nats.Statistics {
@@ -50,9 +56,17 @@ func Close() {
 }
 
 func SubscribeCoreNATS(subj string, cb interface{}) error {
-	return DefaultClient.Subscribe(subj, cb)
+	err := DefaultClient.Subscribe(subj, cb)
+	if err != nil {
+		return fmt.Errorf("subscribe: %w", err)
+	}
+	return nil
 }
 
 func PublishCoreNATS(subj string, v interface{}) error {
-	return DefaultClient.Publish(subj, v)
+	err := DefaultClient.Publish(subj, v)
+	if err != nil {
+		return fmt.Errorf("publish message: %w", err)
+	}
+	return nil
 }

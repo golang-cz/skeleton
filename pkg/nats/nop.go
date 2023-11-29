@@ -23,11 +23,7 @@ func (c *nopClient) Unsubscribe() {}
 func (c *nopClient) Close() {}
 
 func (c *nopClient) Publish(subject string, v interface{}) error {
-	err := fmt.Errorf(
-		"trying to publish message to subject (%s) but NATS client is disconnected - payload: %+v",
-		subject,
-		v,
-	)
+	err := fmt.Errorf("trying to publish message to subject (%s) but NATS client is disconnected - payload: %+v", subject, v)
 	if c.Alert {
 		slog.Error(err.Error())
 	} else {
