@@ -114,7 +114,7 @@ run-scheduler:
 	air -c .air.toml --build.cmd "go build -o bin/scheduler cmd/scheduler/main.go" --build.bin "./bin/scheduler $(filter-out $@,$(MAKECMDGOALS))"
 
 test-analysis:
-	docker run --rm -v $(shell pwd):/app -u $(shell id -u):$(shell id -g) -w /app -e GOCACHE=/app/.cache/golang -e GOLANGCI_LINT_CACHE=/app/.cache/golangci ghcr.io/golang-cz/static-analysis:latest golangci-lint run  -c .golangci.yml services/... pkg/... 
+	docker run --rm -v $(shell pwd):/app -u $(shell id -u):$(shell id -g) -w /app -e GOCACHE=/app/.cache/golang -e GOLANGCI_LINT_CACHE=/app/.cache/golangci ghcr.io/golang-cz/static-analysis:latest golangci-lint run  -c .golangci.yml  pkg/... 
 
 ##
 ## TEST

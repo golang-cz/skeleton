@@ -22,7 +22,6 @@ func RespondError(w http.ResponseWriter, r *http.Request, status int, err error)
 	slog.LogAttrs(ctx, slog.LevelError, err.Error())
 
 	JSON(w, status, resp)
-	return
 }
 
 // errorCause returns the very first (non-nil) error cause,
