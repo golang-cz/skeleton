@@ -1,7 +1,7 @@
 # options for analysis running
 run:
   # default concurrency is a available CPU number
-  concurrency: 4
+  concurrency: 8
 
   # timeout for analysis, e.g. 30s, 5m, default is 1m
   timeout: 5m
@@ -14,20 +14,15 @@ run:
 
   # Allow multiple parallel golangci-lint instances running.
   # If false (default) - golangci-lint acquires file lock on start.
-  allow-parallel-runners: false
+  allow-parallel-runners: true
 
   skip-dirs-use-default: true
 
   skip-dirs:
-    - assets/
-    - be/
     - bin/
-    - data/schema/
-    - docker/
-    - docs/
     - etc/
     - scripts/
-    - tests/
+    - vendor/
 
 output:
   # colored-line-number|line-number|json|tab|checkstyle|code-climate|junit-xml|github-actions
@@ -50,7 +45,7 @@ output:
   sort-results: false
 
   # Default: use Go version from the go.mod file, fallback on the env var `GOVERSION`, fallback on 1.18
-  #go: ''
+  go: "1.21"
 
 issues:
   max-issues-per-linter: 50
@@ -58,13 +53,33 @@ issues:
 linters:
   disable-all: true
   enable:
+    - wrapcheck
     - bodyclose
+    - gosimple # simplifying code
+    - govet
+    - ineffassign # Detects when assignments to existing variables are not used
+    - errname # Checks that sentinel errors are prefixed with the Err and error types are suffixed with the Error.
+    - sqlclosecheck # Checks that sql.Rows and sql.Stmt are closed.
+    - tparallel # Detects inappropriate usage of t.Parallel() method in your Go test codes
+    - prealloc # find slice declarations that could potentially be preallocated.
     - wraperrchecker
 
 linters-settings:
   custom:
     wraperrchecker:
-      # Path in docker image
+      #      Path in docker image
       path: /usr/bin/wrap-err-checker.so
       description: "Checking correct wrapping of errors"
       original-url: "https://github.com/golang-cz/static-analysis"
+  wrapcheck:
+    ignoreSigs:
+      - .Errorf(
+      - errors.New(
+      - errors.Unwrap(
+      - .Wrap(
+      - .Wrapf(
+      - .WithMessage(
+      - .WithMessagef(
+      - .WithStack(
+      - postgresql.JSONBValue
+      - postgresql.ScanJSONB
