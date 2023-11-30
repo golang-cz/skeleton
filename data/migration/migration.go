@@ -56,6 +56,13 @@ func RunMigrations(args []string, conf *config.Config) error {
 	dir := "migrations"
 	if cmd == "create" {
 		dir = conf.Goose.Dir
+		if len(args[1:]) == 1 {
+			return fmt.Errorf("missing name for migration")
+		}
+
+		if len(args[1:]) > 2 {
+			return fmt.Errorf("too many arguments %v", args[1:])
+		}
 	}
 
 	for {
