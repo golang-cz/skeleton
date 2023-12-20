@@ -25,6 +25,10 @@ jobs:
           # - ${{ github.workspace }}/temp/schema.sql:/home/schema.sql
           - ${{ github.workspace }}/temp:/home
         options: --name postgres
+      nats:
+        image: nats:2.9
+        ports:
+          - "4222:4222"
 
     steps:
       - name: Git clone
