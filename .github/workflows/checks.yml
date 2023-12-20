@@ -11,7 +11,7 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     services:
-      skeleton-postgres:
+      postgres:
         image: postgres:15.3
         env:
           POSTGRES_USER: devbox
@@ -24,10 +24,9 @@ jobs:
           # - ${{ github.workspace }}/temp/db.sh:/home/db.sh
           # - ${{ github.workspace }}/temp/schema.sql:/home/schema.sql
           - ${{ github.workspace }}/temp:/home
-        options: --name skeleton-postgres
+        options: --name postgres
 
     steps:
-
       - name: Git clone
         run: |
           sudo chown -R $USER:$USER /home/runner/work/skeleton
@@ -46,9 +45,11 @@ jobs:
           cp ./db/schema.sql ./temp/schema.sql
 
       - name: Restart postgres
-        uses: docker://docker
-        with:
-          args: docker restart skeleton-postgres
+        run: |
+          docker restart postgres
+        # uses: docker://docker
+        # with:
+        #   args: docker restart postgres
 
       - name: Git safe.directory
         # Fixes following git error:

@@ -122,7 +122,7 @@ func initDB(database string) error {
 	slog.Debug("Initializing DB", "database", database)
 
 	// Execute the command to create the new schema
-	createCmd := exec.Command("bash", "-c", fmt.Sprintf(`docker exec skeleton-postgres /bin/sh -c '/home/db.sh create %s'`, database))
+	createCmd := exec.Command("bash", "-c", fmt.Sprintf(`docker exec postgres /bin/sh -c '/home/db.sh create %s'`, database))
 	_, err := createCmd.Output()
 	if err != nil {
 		if e, ok := err.(*exec.ExitError); ok {
@@ -134,7 +134,7 @@ func initDB(database string) error {
 	}
 
 	// Import the schema.sql script into the new schema
-	importCmd := exec.Command("bash", "-c", fmt.Sprintf(`docker exec skeleton-postgres /bin/sh -c '/home/db.sh import %s %s'`, database, "/home/schema.sql"))
+	importCmd := exec.Command("bash", "-c", fmt.Sprintf(`docker exec postgres /bin/sh -c '/home/db.sh import %s %s'`, database, "/home/schema.sql"))
 	_, err = importCmd.Output()
 	if err != nil {
 		if e, ok := err.(*exec.ExitError); ok {
