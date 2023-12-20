@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   postgres:
-    container_name: skeleton-postgres
+    container_name: postgres
     image: postgres:15.3
     restart: always
     networks:
