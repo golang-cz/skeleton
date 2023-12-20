@@ -61,13 +61,6 @@ func TestMain(m *testing.M) {
 		log.Fatalf("setting up app: %v", err)
 	}
 
-	// hacky solution how to use database scripts from devbox project without having need to change the PATH variable
-	devboxPath := strings.Replace(E2E.ProjectRootDirectory, "/skeleton", "/devbox/backend/scripts", 1)
-	err = os.Setenv("PATH", fmt.Sprintf("%s:%s", devboxPath, os.Getenv("PATH")))
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	err = initDB(conf.DB.Database)
 	if err != nil {
 		log.Fatalf("starting DB: %v", err)
@@ -129,7 +122,7 @@ func initDB(database string) error {
 	slog.Debug("Initializing DB", "database", database)
 
 	// Execute the command to create the new schema
-	createCmd := exec.Command("bash", "-c", fmt.Sprintf("db.sh create %s", database))
+	createCmd := exec.Command("bash", "-c", fmt.Sprintf(`docker exec skeleton-postgres /bin/sh -c '/home/db.sh create %s'`, database))
 	_, err := createCmd.Output()
 	if err != nil {
 		if e, ok := err.(*exec.ExitError); ok {
@@ -141,7 +134,7 @@ func initDB(database string) error {
 	}
 
 	// Import the schema.sql script into the new schema
-	importCmd := exec.Command("bash", "-c", fmt.Sprintf("db.sh import %s %s", database, filepath.Join(E2E.ProjectRootDirectory, "db/schema.sql")))
+	importCmd := exec.Command("bash", "-c", fmt.Sprintf(`docker exec skeleton-postgres /bin/sh -c '/home/db.sh import %s %s'`, database, "/home/schema.sql"))
 	_, err = importCmd.Output()
 	if err != nil {
 		if e, ok := err.(*exec.ExitError); ok {
@@ -153,5 +146,6 @@ func initDB(database string) error {
 	}
 
 	slog.Info("Schema created and schema.sql imported", "schema", database)
+
 	return nil
 }

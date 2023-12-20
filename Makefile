@@ -26,7 +26,6 @@ all:
 ##
 
 init: config git-hooks tools vendor build
-	@if [ ! -d "../devbox" ]; then echo "Missing devbox repository"; cd ..; git clone git@github.com:golang-cz/devbox.git; fi
 
 config:
 	cp etc/config.sample.toml etc/config.toml
@@ -58,21 +57,17 @@ vendor:
 todo:
 	@git grep TODO -- './*' ':!./vendor/' ':!./Makefile' || :
 
-devbox-up:
-	cd ../devbox && $(MAKE) up
-
-devbox-down:
-	cd ../devbox && $(MAKE) down
-
-dev: devbox-up
-	${MAKE} db-up
-	$(MAKE) run-api
-
 rebase-generate:
 	${MAKE} generate
 	git add proto/
 	git commit
 	git rebase --continue
+
+up:
+	docker compose -f docker-compose.yaml up --detach
+
+down:
+	docker compose -f docker-compose.yaml down
 
 ##
 ## BUILDS
@@ -159,7 +154,7 @@ create-migration-go: build-goose
 	@./bin/goose -config=./etc/config.toml create $(filter-out $@,$(MAKECMDGOALS)) go 
 
 db-update-schema:
-	pg_dump skeleton --schema-only | grep -v -e '^--' -e '^COMMENT ON' -e '^REVOKE' -e '^GRANT' -e '^SET' -e 'ALTER DEFAULT PRIVILEGES' -e 'OWNER TO' | cat -s > ./db/schema.sql
+	docker exec -it skeleton-postgres pg_dump -U devbox -d skeleton --schema-only | grep -v -e '^--' -e '^COMMENT ON' -e '^REVOKE' -e '^GRANT' -e '^SET' -e 'ALTER DEFAULT PRIVILEGES' -e 'OWNER TO' | cat -s > ./db/schema.sql
 
 db-up: build-goose
 	@./bin/goose -config=./etc/config.toml up
@@ -171,8 +166,8 @@ db-down: build-goose
 	@$(MAKE) db-update-schema
 
 db-down-to: build-goose
-	@./bin/goose -config=./etc/config.toml down-to $(MIGRATION_VERSION)
-	@$(MAKE) db-update-schema
+	e./bin/goose -config=./etc/config.toml down-to $(MIGRATION_VERSION)
+	@$(MAKE) db-update-
 
 db-redo: build-goose
 	@./bin/goose -config=./etc/config.toml redo
@@ -184,12 +179,12 @@ db-version: build-goose
 	@./bin/goose -config=./etc/config.toml version
 
 db-reset:
-	db.sh drop skeleton
+	docker exec -it skeleton-postgres /bin/sh -c "/home/db.sh drop skeleton"
 	@$(MAKE) db-create
 	@$(MAKE) db-up
 
 db-create:
-	db.sh create skeleton
+	docker exec -it skeleton-postgres /bin/sh -c "/home/db.sh create skeleton"
 
 
 db-generate-svg-schema:

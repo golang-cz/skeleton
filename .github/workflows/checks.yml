@@ -12,12 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: ghcr.io/golang-cz/devbox-postgres:15.2-alpine-1
-        credentials:
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+        image: postgres:15.3
         env:
-          POSTGRES_USER: devbox
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: pass
           POSTGRES_HOST_AUTH_METHOD: trust
         ports:
           - "5432:5432"
