@@ -11,20 +11,45 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     services:
-      postgres:
+      skeleton-postgres:
         image: postgres:15.3
         env:
-          POSTGRES_USER: postgres
+          POSTGRES_USER: devbox
           POSTGRES_PASSWORD: pass
           POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: devbox
         ports:
           - "5432:5432"
+        volumes:
+          # - ${{ github.workspace }}/temp/db.sh:/home/db.sh
+          # - ${{ github.workspace }}/temp/schema.sql:/home/schema.sql
+          - ${{ github.workspace }}/temp:/home
+        options: --name skeleton-postgres
+
     steps:
+
       - name: Git clone
-        uses: actions/checkout@v3
+        run: |
+          sudo chown -R $USER:$USER /home/runner/work/skeleton
+
+      - name: Git clone
+        uses: actions/checkout@v4
         with:
+          clean: 'false'
           ref: ${{ github.event.pull_request.head.sha }} # Checkout Pull Request HEAD commit instead of the default Pull Request merge commit.
           fetch-depth: 1
+
+      - name: Copy schema and db
+        run: |
+          mkdir -p temp
+          cp ./scripts/backend/db.sh ./temp/db.sh
+          cp ./db/schema.sql ./temp/schema.sql
+
+      - name: Restart postgres
+        uses: docker://docker
+        with:
+          args: docker restart skeleton-postgres
+
       - name: Git safe.directory
         # Fixes following git error:
         #   error obtaining VCS status: exit status 128
@@ -49,4 +74,4 @@ jobs:
           if [[ $(git ls-files | xargs du -hs --threshold=2M 2>/dev/null | tee /dev/stderr | wc -l) -gt 0 ]]; then
             echo "Aborting due to big files in the git repository."
             exit 1;
-          fi
+          f/db.shi
