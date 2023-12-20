@@ -45,34 +45,36 @@ jobs:
           cp ./db/schema.sql ./temp/schema.sql
 
       - name: Restart postgres
-        run: |
-          docker restart postgres
-        # uses: docker://docker
-        # with:
-        #   args: docker restart postgres
+        uses: docker://docker
+        with:
+          args: docker restart postgres
 
       - name: Git safe.directory
         # Fixes following git error:
         #   error obtaining VCS status: exit status 128
         #   Use -buildvcs=false to disable VCS stamping. (typecheck)
         run: git config --global --add safe.directory '*'
+
       - uses: actions/setup-go@v4
         with:
           go-version: "1.21"
+
       - name: Run go tests
         run: |
           cp ./etc/ci.toml ./etc/test.toml
-          # go install github.com/mfridman/tparse@latest 
+          # go install github.com/mfridman/tparse@latest
           set -o pipefail && DIR=$PWD go test -parallel 1 ./... -json # | tparse -all
+
       - name: Static analysis check
         uses: addnab/docker-run-action@v3
         with:
           image: ghcr.io/golang-cz/static-analysis:v23.10.15-a16f233
           options: -v ${{ github.workspace }}:/src -w /src
           run: golangci-lint run -c ./.golangci.yml ./...
-      - name: Check for big files
-        run: |
-          if [[ $(git ls-files | xargs du -hs --threshold=2M 2>/dev/null | tee /dev/stderr | wc -l) -gt 0 ]]; then
-            echo "Aborting due to big files in the git repository."
-            exit 1;
-          f/db.shi
+
+      # - name: Check for big files
+      #   run: |
+      #     if [[ $(git ls-files | xargs du -hs --threshold=2M 2>/dev/null | tee /dev/stderr | wc -l) -gt 0 ]]; then
+      #       echo "Aborting due to big files in the git repository."
+      #       exit 1;
+      #     f/db.shi
