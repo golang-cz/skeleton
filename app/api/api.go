@@ -10,7 +10,8 @@ import (
 	"github.com/golang-cz/skeleton/app/api/rest"
 	"github.com/golang-cz/skeleton/app/api/rpc"
 	"github.com/golang-cz/skeleton/config"
-	data "github.com/golang-cz/skeleton/data/database"
+	"github.com/golang-cz/skeleton/data"
+	"github.com/golang-cz/skeleton/internal/reqctx"
 	"github.com/golang-cz/skeleton/pkg/events"
 	"github.com/golang-cz/skeleton/pkg/nats"
 	"github.com/golang-cz/skeleton/pkg/slogger"
@@ -20,15 +21,15 @@ import (
 )
 
 type API struct {
-	Config *config.Config
-	DB     *data.Database
-	HTTP   *http.Server
-	RPC    *rpc.Rpc
-
+	Config           *config.Config
+	DB               *data.Database
+	HTTP             *http.Server
+	RPC              *rpc.Rpc
+	REST             *rest.Server
 	shutdownFinished chan struct{}
 }
 
-func New(conf *config.Config) (*API, error) {
+func New(ctx context.Context, conf *config.Config) (*API, error) {
 	// Database
 	database, err := data.NewDBSession(conf.DB)
 	if err != nil {
@@ -46,18 +47,19 @@ func New(conf *config.Config) (*API, error) {
 		slog.Error(slogger.ErrorCause(err).Error())
 	}
 
-	rpcSever := &rpc.Rpc{
+	rpcServer := &rpc.Rpc{
 		Config: conf,
 		DB:     database,
 	}
 
-	rpcHandler := proto.NewSkeletonServer(rpcSever)
+	rpcHandler := proto.NewSkeletonServer(rpcServer)
+	rpcHandler.OnError = func(r *http.Request, rpcErr *proto.WebRPCError) {
+		ctx := r.Context()
+		reqctx.AddAttr(ctx, "webrpcError", rpcErr)
 
-	app := &API{
-		Config:           conf,
-		DB:               database,
-		RPC:              rpcSever,
-		shutdownFinished: make(chan struct{}, 1),
+		if conf.Environment.IsProduction() {
+			rpcErr.Cause = "" // Hide error details in production.
+		}
 	}
 
 	restServer := &rest.Server{
@@ -65,7 +67,7 @@ func New(conf *config.Config) (*API, error) {
 		DB:     database,
 	}
 
-	app.HTTP = &http.Server{
+	srv := &http.Server{
 		Addr:              conf.Port,
 		Handler:           restServer.Router(rpcHandler),
 		IdleTimeout:       60 * time.Second, // idle connections
@@ -73,6 +75,16 @@ func New(conf *config.Config) (*API, error) {
 		ReadTimeout:       5 * time.Minute,  // request body
 		WriteTimeout:      5 * time.Minute,  // response body
 		MaxHeaderBytes:    1 << 20,          // 1 MB
+	}
+
+	app := &API{
+		Config: conf,
+		DB:     database,
+		RPC:    rpcServer,
+		REST:   restServer,
+		HTTP:   srv,
+
+		shutdownFinished: make(chan struct{}, 1),
 	}
 
 	return app, nil
@@ -131,6 +143,6 @@ func (app *API) Stop(maxDuration time.Duration) (err error) {
 func (app *API) teardown() {
 	slog.Info("API: tearing down..")
 
-	_ = app.DB.Session.Close()
+	_ = app.DB.Close()
 	nats.Close()
 }

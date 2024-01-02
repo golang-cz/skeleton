@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
+
 	"github.com/golang-cz/skeleton/config"
 	"github.com/golang-cz/skeleton/pkg/version"
 )

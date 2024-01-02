@@ -1,0 +1,100 @@
+package data
+
+import (
+	"fmt"
+	"time"
+
+	"github.com/gofrs/uuid/v5"
+	"github.com/upper/db/v4"
+
+	"github.com/golang-cz/skeleton/pkg/utc"
+	"github.com/golang-cz/skeleton/proto"
+)
+
+type {{.Upper}} struct {
+	*proto.{{.Upper}}
+
+	CreatedAt time.Time  `json:"createdAt"           db:"created_at"`
+	UpdatedAt time.Time  `json:"updatedAt"           db:"updated_at"`
+	DeletedAt *time.Time `json:"deletedAt,omitempty" db:"deleted_at"`
+}
+
+type {{.Store}} struct {
+	db.Collection
+}
+
+// Interface checks
+var _ = interface {
+	db.Record
+	db.BeforeCreateHook
+	db.BeforeUpdateHook
+}(&{{.Upper}}{})
+
+var _ = interface {
+	db.Store
+}(&{{.Store}}{})
+
+func {{.MultiplePascal}}(sess db.Session) *{{.Store}} {
+	return &{{.Store}}{sess.Collection("{{.Collection}}")}
+}
+
+func (u *{{.Upper}}) Store(sess db.Session) db.Store {
+	return {{.MultiplePascal}}(sess)
+}
+
+func ({{.Letter}} *{{.Upper}}) BeforeCreate(sess db.Session) error {
+	if err := {{.Letter}}.Validate(); err != nil {
+		return fmt.Errorf("{{.Lower}} is not valid: %w", err)
+	}
+
+	{{.Letter}}.CreatedAt = utc.Now()
+	{{.Letter}}.UpdatedAt = {{.Letter}}.CreatedAt
+
+	return nil
+}
+
+func ({{.Letter}} *{{.Upper}}) BeforeUpdate(sess db.Session) error {
+	if err := {{.Letter}}.Validate(); err != nil {
+		return fmt.Errorf("{{.Lower}} is not valid: %w", err)
+	}
+
+	{{.Letter}}.UpdatedAt = utc.Now()
+
+	return nil
+}
+
+func ({{.Letter}} *{{.Upper}}) Validate() error {
+	return nil
+}
+
+func (s {{.Store}}) Find(conds ...interface{}) db.Result {
+	return s.Collection.Find(conds...)
+}
+
+func (s {{.Store}}) FindActive(conds ...interface{}) db.Result {
+	return s.Find(append([]interface{}{db.Cond{"deleted_at": db.IsNull()}}, conds...)...)
+}
+
+func (s {{.Store}}) FindOne(conds ...interface{}) ({{.Lower}} *{{.Upper}}, err error) {
+	if err = s.Find(conds...).One(&{{.Lower}}); err != nil {
+		return nil, fmt.Errorf("get first record: %w", err)
+	}
+
+	return {{.Lower}}, nil
+}
+
+func (s {{.Store}}) FindActiveOne(conds ...interface{}) ({{.Lower}} *{{.Upper}}, err error) {
+	if err = s.FindActive(conds...).One(&{{.Lower}}); err != nil {
+		return nil, fmt.Errorf("get first record: %w", err)
+	}
+
+	return {{.Lower}}, nil
+}
+
+func (s {{.Store}}) FindById(id uuid.UUID, conds ...interface{}) ({{.Lower}} *{{.Upper}}, err error) {
+	return s.FindOne(append([]interface{}{db.Cond{"id": id}}, conds...)...)
+}
+
+func (s {{.Store}}) FindActiveById(id uuid.UUID, conds ...interface{}) ({{.Lower}} *{{.Upper}}, err error) {
+	return s.FindActiveOne(append([]interface{}{db.Cond{"id": id}}, conds...)...)
+}

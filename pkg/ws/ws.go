@@ -17,14 +17,11 @@ func RespondError(w http.ResponseWriter, r *http.Request, status int, err error)
 
 	resp := map[string]interface{}{
 		"error": errorCause(err).Error(),
-		// "vctraceid": vctraceid.FromContext(r.Context()),
-		"vctraceid": "somethin",
 	}
 
 	slog.LogAttrs(ctx, slog.LevelError, err.Error())
 
 	JSON(w, status, resp)
-	return
 }
 
 // errorCause returns the very first (non-nil) error cause,

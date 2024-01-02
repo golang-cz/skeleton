@@ -2,7 +2,7 @@ package rest
 
 import (
 	"github.com/golang-cz/skeleton/config"
-	data "github.com/golang-cz/skeleton/data/database"
+	"github.com/golang-cz/skeleton/data"
 )
 
 type Server struct {

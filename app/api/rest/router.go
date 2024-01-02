@@ -8,23 +8,23 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/golang-cz/skeleton/config"
+	"github.com/rs/cors"
+
 	"github.com/golang-cz/skeleton/pkg/alert"
 	"github.com/golang-cz/skeleton/pkg/slogger"
-	"github.com/rs/cors"
 )
 
 func (s *Server) Router(rpcServerHandler http.Handler) chi.Router {
 	r := chi.NewRouter()
 
 	r.Use(middleware.NoCache)
-	r.Use(middleware.Heartbeat("/ping"))
+	r.Use(middleware.Heartbeat("/_api/ping"))
 	r.Use(middleware.RealIP)
 	r.Use(slogger.SloggerMiddleware(s.Config))
 	r.Use(middleware.Recoverer)
 
 	corsHandler := cors.New(cors.Options{
-		AllowedOrigins: config.App.AllowedOrigins,
+		AllowedOrigins: s.Config.AllowedOrigins,
 		AllowedMethods: []string{"GET", "POST", "OPTIONS"},
 		AllowedHeaders: []string{
 			"Accept", "Authorization", "Content-Type",
@@ -40,7 +40,7 @@ func (s *Server) Router(rpcServerHandler http.Handler) chi.Router {
 	r.Get("/favicon.ico", favicon)
 	r.Mount("/debug/pprof", s.PprofRouter())
 
-	r.Route("/api", func(r chi.Router) {
+	r.Route("/_api", func(r chi.Router) {
 		r.Get("/status", s.StatusPage)
 
 		r.Route("/rpc", func(r chi.Router) {
@@ -60,10 +60,10 @@ func robots(w http.ResponseWriter, r *http.Request) {
 
 func sentry(w http.ResponseWriter, r *http.Request) {
 	if err := alert.Msgf(r.Context(), "request to sentry test endpoint on /sentry", errors.New("panika")); err != nil {
-		w.Write([]byte(fmt.Sprintf("Sentry message sent - %s\n", time.Now())))
+		fmt.Fprintf(w, "Sentry message sent - %s\n", time.Now())
 		return
 	}
-	w.Write([]byte(fmt.Sprintf("Sentry did not sent - %s\n", time.Now())))
+	fmt.Fprintf(w, "Sentry did not sent - %s\n", time.Now())
 }
 
 func favicon(w http.ResponseWriter, r *http.Request) {

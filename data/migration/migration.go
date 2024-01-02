@@ -6,10 +6,11 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/golang-cz/skeleton/config"
-	data "github.com/golang-cz/skeleton/data/database"
 	"github.com/lib/pq"
 	"github.com/pressly/goose/v3"
+
+	"github.com/golang-cz/skeleton/config"
+	"github.com/golang-cz/skeleton/data"
 )
 
 //go:embed migrations/*.sql
@@ -21,6 +22,7 @@ func RunMigrations(args []string, conf *config.Config) error {
 		return fmt.Errorf("connect to DB: %w", err)
 	}
 
+	fmt.Println(conf.DB)
 	goose.SetBaseFS(migrations)
 
 	err = goose.SetDialect(conf.Goose.Driver)
@@ -54,10 +56,17 @@ func RunMigrations(args []string, conf *config.Config) error {
 	dir := "migrations"
 	if cmd == "create" {
 		dir = conf.Goose.Dir
+		if len(args[1:]) == 1 {
+			return fmt.Errorf("missing name for migration")
+		}
+
+		if len(args[1:]) > 2 {
+			return fmt.Errorf("too many arguments %v", args[1:])
+		}
 	}
 
 	for {
-		err := goose.Run(cmd, db.Session.Driver().(*sql.DB), dir, args[1:]...)
+		err := goose.Run(cmd, db.Driver().(*sql.DB), dir, args[1:]...)
 		if errors.Is(err, goose.ErrNoNextVersion) || errors.Is(err, goose.ErrNoCurrentVersion) {
 			return nil
 		}
@@ -91,7 +100,7 @@ func RunMigrations(args []string, conf *config.Config) error {
 		}
 
 		// New DB session for each loop. Fixes upper/db cache bug after schema changes.
-		db.Session.Close()
+		db.Close()
 
 		db, err = data.NewDBSession(conf.DB)
 		if err != nil {

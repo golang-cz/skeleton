@@ -114,13 +114,13 @@ var templateHTML = `<!DOCTYPE html>
 func RenderTemplate(data interface{}) ([]byte, error) {
 	t, err := template.New("").Parse(templateHTML)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("render template: %w", err)
 	}
 
 	buf := bytes.NewBuffer(nil)
 	err = t.Execute(buf, data)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("render template: %w", err)
 	}
 
 	return buf.Bytes(), nil

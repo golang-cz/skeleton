@@ -8,27 +8,39 @@ import (
 type Environment int
 
 const (
-	EnvLocal Environment = iota
-	EnvTest
-	EnvCI
-	EnvProd
+	EnvLocal Environment = iota // 0
+	EnvTest                     // 1
+	EnvCI                       // 2
+	EnvDEV1                     // 3
+	EnvEU1                      // 4
 )
 
 var environments = []string{
-	"local",      // 0
-	"test",       // 1
-	"ci",         // 2
-	"production", // 3
+	"local", // 0
+	"test",  // 1
+	"ci",    // 2
+	"dev1",  // 4
+	"eu1",   // 8
 }
 
 func (e Environment) IsLocal() bool {
 	return e == EnvLocal
 }
 
+// IsDevlabs reports whether the current environment is on aws devlabs.
+func (e Environment) IsDevlabs() bool {
+	switch e {
+	case EnvDEV1:
+		return true
+	default:
+		return false
+	}
+}
+
 // IsProduction reports whether the current environment is production.
 func (e Environment) IsProduction() bool {
 	switch e {
-	case EnvProd:
+	case EnvEU1:
 		return true
 	default:
 		return false
@@ -59,9 +71,5 @@ func (e *Environment) UnmarshalText(text []byte) error {
 			return nil
 		}
 	}
-	return fmt.Errorf(
-		"unknown environment:%q\n  supported: %s",
-		enum,
-		strings.Join(environments, ", "),
-	)
+	return fmt.Errorf("unknown environment:%q\n  supported: %s", enum, strings.Join(environments, ", "))
 }

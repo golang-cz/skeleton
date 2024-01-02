@@ -19,6 +19,7 @@ func SetupApp(conf *config.Config, appName, version string) error {
 	if err != nil {
 		return fmt.Errorf("load utc location: %w", err)
 	}
+
 	time.Local = utcLocation
 
 	// Set default logger
@@ -26,6 +27,7 @@ func SetupApp(conf *config.Config, appName, version string) error {
 	if err != nil {
 		return fmt.Errorf("creating new slog logger: %w", err)
 	}
+
 	slog.SetDefault(logger)
 
 	return nil

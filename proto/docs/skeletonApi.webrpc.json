@@ -1,0 +1,101 @@
+{
+ "webrpc": "v1",
+ "name": "Skeleton",
+ "version": "",
+ "types": [
+  {
+   "kind": "struct",
+   "name": "User",
+   "fields": [
+    {
+     "name": "id",
+     "type": "string",
+     "meta": [
+      {
+       "go.field.name": "ID"
+      },
+      {
+       "go.field.type": "uuid.UUID"
+      },
+      {
+       "go.type.import": "github.com/gofrs/uuid/v5"
+      },
+      {
+       "go.tag.json": "id"
+      }
+     ]
+    },
+    {
+     "name": "email",
+     "type": "string",
+     "meta": [
+      {
+       "go.field.name": "Email"
+      },
+      {
+       "go.field.type": "string"
+      },
+      {
+       "go.tag.json": "email"
+      }
+     ]
+    },
+    {
+     "name": "firstname",
+     "type": "string",
+     "meta": [
+      {
+       "go.field.name": "Firstname"
+      },
+      {
+       "go.field.type": "string"
+      },
+      {
+       "go.tag.json": "firstname"
+      }
+     ]
+    },
+    {
+     "name": "lastname",
+     "type": "string",
+     "meta": [
+      {
+       "go.field.name": "Lastname"
+      },
+      {
+       "go.field.type": "string"
+      },
+      {
+       "go.tag.json": "lastname"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "errors": null,
+ "services": [
+  {
+   "name": "Skeleton",
+   "methods": [
+    {
+     "name": "GetUser",
+     "inputs": [
+      {
+       "name": "id",
+       "type": "string",
+       "optional": false
+      }
+     ],
+     "outputs": [
+      {
+       "name": "user",
+       "type": "User",
+       "optional": false
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

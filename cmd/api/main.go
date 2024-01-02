@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 	"log/slog"
@@ -23,35 +24,29 @@ var (
 func main() {
 	flags.Parse(os.Args[1:])
 
-	// Read config.toml file
-	file, err := os.Open(*confFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	// Load and parse config file
-	conf, err := config.NewFromReader(file)
+	conf, err := config.NewFromReader(*confFile)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("load config: %v", err)
 	}
 
 	// Setup application
-	err = core.SetupApp(conf, "Skeleton-API", version.VERSION)
+	err = core.SetupApp(conf, "skeleton-api", version.VERSION)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("setup app: %v", err)
 	}
 
 	// Create app & connect to DB, NATS etc.
-	app, err := api.New(conf)
+	app, err := api.New(context.Background(), conf)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("create app: %v", err)
 	}
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	go func() {
 		sig := <-sigs
-		slog.Info("received signal", slog.Any("signal", sig))
+		slog.Info("received signal", "signal", sig)
 		app.Stop(10 * time.Second)
 	}()
 

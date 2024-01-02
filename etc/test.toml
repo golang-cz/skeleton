@@ -1,0 +1,38 @@
+bind_address = ":7081"
+environment = "test"
+
+[db]
+    app_name = "skeleton"
+    conn_max_lifetime = "1800s"
+    connect_timeout = 5
+    database = "skeleton_e2e"
+    host = "127.0.0.1:54329" 
+    max_idle_conns = 10
+    max_open_conns = 100
+    read_only = false
+    report_query_errors = true
+    sslmode = "disable"
+    username = "devbox"
+    password = ""
+
+[looper]
+    interval = "500ms"
+    wait_after_error = "10s"
+    job_timeout = "1m"
+
+[status_page]
+    applicationId = "77aa645f-4642-49c8-8f49-adef017dcba6"
+    userId = "c0b128d6-d030-4efa-adaa-b03401115e4e" # change to cpmadmin
+
+[goose]
+    dir = "./data/migration/migrations"
+    driver = "postgres"
+
+[nats]
+    server = "nats://localhost:42220" 
+
+[redis]
+    host = "127.0.0.1:63790" 
+
+[sentry]
+    dsn = "" # "https://123@abc.ingest.sentry.io/123"
